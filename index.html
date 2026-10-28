@@ -1118,17 +1118,13 @@
 
             <div class="features-grid">
                 <div class="support-card form-card">
-                    <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
-                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وانت اللي تختار اسم المستخدم وكلمة سرك وكود المتابعة، وبيهم بس تقدر تضيف على بلاغك وتشوف رد المطور.</p>
+                    <h3>📝 ابعت بلاغك من هنا</h3>
+                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. البلاغ بيتبعت لوحده من غير أي حساب؛ لو عايز يبقى مقفول عليك وتضيف عليه براحتك، سجّل دخولك من صفحة الدخول الأول.</p>
+                    <p class="form-hint" id="bugAccount" style="margin-bottom:12px;"></p>
                     <form id="bugForm" autocomplete="off" novalidate>
                         <div class="form-row">
                             <label for="bugName">اسمك *</label>
                             <input id="bugName" type="text" maxlength="60" placeholder="مثال: عمر">
-                        </div>
-                        <div class="form-row">
-                            <label for="bugUser">اسم المستخدم *</label>
-                            <input id="bugUser" type="text" maxlength="30" placeholder="مثال: omar أو عمر بن مامو" spellcheck="false" autocomplete="username">
-                            <span class="form-hint">ده اللي هتدخل بيه على بلاغك مع كلمة السر — اكتبه زي ما تحب (عربي أو إنجليزي).</span>
                         </div>
                         <div class="form-row">
                             <label for="bugCodeInput">كود المتابعة</label>
@@ -1137,15 +1133,6 @@
                                 <input id="bugCodeInput" type="text" maxlength="11" placeholder="اكتب اسمك هنا" spellcheck="false" autocomplete="off">
                             </div>
                             <span class="form-hint">«BFO-» مكتوبة جاهزة — اكتب بعدها أي اسم تحبه (عربي أو إنجليزي، الموقع يحوّله لحروف إنجليزي) وتقدر تزوّد رقم بعده. ده الكود اللي هتتابع بيه بلاغك. لو سيبتها فاضية، الموقع يجيبلك كود لوحده.</span>
-                        </div>
-                        <div class="form-row">
-                            <label for="bugPass">كلمة السر *</label>
-                            <input id="bugPass" type="password" maxlength="60" placeholder="4 حروف أو أرقام على الأقل" autocomplete="new-password">
-                        </div>
-                        <div class="form-row">
-                            <label for="bugPass2">تأكيد كلمة السر *</label>
-                            <input id="bugPass2" type="password" maxlength="60" placeholder="اكتبها تاني" autocomplete="new-password">
-                            <span class="form-hint">كلمة السر دي تمنع أي حد تاني يضيف كلام على بلاغك — انت بس اللي تعرفها. وانت اللي بتختار اسم المستخدم اللي فوق.</span>
                         </div>
                         <div class="form-row">
                             <label for="bugText">وصف الخطأ *</label>
@@ -1173,8 +1160,7 @@
                                 <button type="button" class="copy-btn" id="bugCopy">📋 نسخ</button>
                             </div>
                             <p>احفظ الكود ده — تكتبه في <a id="bugFollow" href="follow.html">صفحة متابعة البلاغ</a> وتشوف رد المطور على مشكلتك.</p>
-                            <p>واعمل حساب صغير: اسم المستخدم هو اللي كتبته فوق، وكلمة السر هي اللي اخترتها — بيهم بس تقدر تضيف كلام على البلاغ.</p>
-                            <p>ولو فتحت البلاغ من جهاز تاني، هيطلب منك تسجيل دخول من <a href="login.html">صفحة الدخول</a> الأول.</p>
+                            <p>لو حبيت بلاغك يبقى مقفول عليك لوحدك: اعمل حسابك من <a href="login.html">صفحة الدخول</a>، وأي بلاغ تبعته وانت داخل بحسابك يبقى انت بس اللي تقدر تضيف عليه.</p>
                         </div>
                     </form>
                     <p class="follow-line">عندك كود بلاغ؟ <a href="follow.html">تابع الرد من هنا ←</a></p>
@@ -1352,10 +1338,8 @@
             const form = document.getElementById('bugForm');
             if (!form) return;
             const nameEl = document.getElementById('bugName');
-            const userEl = document.getElementById('bugUser');
             const codeInputEl = document.getElementById('bugCodeInput');
-            const passEl = document.getElementById('bugPass');
-            const pass2El = document.getElementById('bugPass2');
+            const accountEl = document.getElementById('bugAccount');
             const textEl = document.getElementById('bugText');
             const contactEl = document.getElementById('bugContact');
             const shotsEl = document.getElementById('bugShots');
@@ -1417,26 +1401,26 @@
                 });
             }
 
-            function hexSalt() {
-                const b = new Uint8Array(8);
-                if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(b);
-                else for (let i = 0; i < 8; i++) b[i] = Math.floor(Math.random() * 256);
-                return Array.from(b).map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+            function currentAccount() {
+                try {
+                    const raw = localStorage.getItem('bfo_account');
+                    if (!raw) return null;
+                    const a = JSON.parse(raw);
+                    if (!a || !a.user || !a.salt || !a.hash) return null;
+                    if (localStorage.getItem('bfo_session') !== a.user) return null;
+                    return a;
+                } catch (e) { return null; }
             }
 
-            function pbkdf2Hex(pass, salt) {
-                if (!(window.crypto && window.crypto.subtle)) return Promise.reject(new Error('no-subtle'));
-                const enc = new TextEncoder();
-                const s = new Uint8Array(salt.match(/.{2}/g).map(function (h) { return parseInt(h, 16); }));
-                return crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveBits'])
-                    .then(function (key) {
-                        return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: s, iterations: 150000, hash: 'SHA-256' }, key, 256);
-                    })
-                    .then(function (bits) {
-                        return Array.from(new Uint8Array(bits))
-                            .map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
-                    });
-            }
+            (function showAccountLine() {
+                if (!accountEl) return;
+                const acct = currentAccount();
+                if (acct) {
+                    accountEl.textContent = '✅ انت داخل باسم ' + acct.user + ' — البلاغ هيتقفل على حسابك، وانت بس اللي تقدر تضيف عليه.';
+                } else {
+                    accountEl.innerHTML = 'مش مسجل دخول — البلاغ بيتبعت عادي من غير قفل. عايز يبقى مقفول عليك؟ <a href="login.html">سجّل دخولك من هنا الأول</a>.';
+                }
+            })();
 
             function showDone(code) {
                 codeEl.textContent = code;
@@ -1560,12 +1544,14 @@
                 });
             }
 
-            function sendReport(name, user, problem, contact, links, shotsFailed, code, lock) {
+            function sendReport(name, problem, contact, links, shotsFailed, code, acct) {
                 let body = 'بلاغ جديد من موقع POS Market BFO\n\n';
                 body += 'كود البلاغ: ' + code + '\n';
                 body += 'الاسم: ' + name + '\n';
-                body += 'اسم المستخدم: ' + user + '\n';
-                if (lock) body += '🔒 قفل البلاغ: ' + lock + '\n';
+                if (acct) {
+                    body += 'اسم المستخدم: ' + acct.user + '\n';
+                    body += '🔒 قفل البلاغ: ' + acct.salt + ':' + acct.hash + '\n';
+                }
                 if (contact) body += 'للتواصل: ' + contact + '\n';
                 body += '\n' + problem + '\n';
                 if (links.length) body += '\n📷 صور المشكلة:\n' + links.join('\n') + '\n';
@@ -1593,36 +1579,19 @@
                 }
 
                 const name = (nameEl.value || '').trim();
-                const user = (userEl.value || '').trim();
                 const typed = typedCode(codeInputEl ? codeInputEl.value : '');
-                const pass = (passEl.value || '');
-                const pass2 = (pass2El.value || '');
                 const problem = (textEl.value || '').trim();
                 const contact = (contactEl.value || '').trim();
+                const acct = currentAccount();
 
                 if (!name) {
                     say('اكتب اسمك الأول.', false);
                     nameEl.focus();
                     return;
                 }
-                if (user.length < 3) {
-                    say('اكتب اسم مستخدم 3 حروف على الأقل — ده اللي هتدخل بيه على بلاغك.', false);
-                    userEl.focus();
-                    return;
-                }
                 if (typed && typed.length < 3) {
                     say('كود المتابعة لازم 3 حروف على الأقل بعد BFO- (حروف إنجليزي أو أرقام).', false);
                     codeInputEl.focus();
-                    return;
-                }
-                if (pass.length < 4) {
-                    say('كلمة السر لازم 4 حروف أو أرقام على الأقل.', false);
-                    passEl.focus();
-                    return;
-                }
-                if (pass !== pass2) {
-                    say('كلمة السر والتأكيد مش زي بعض — اكتبهم تاني.', false);
-                    pass2El.focus();
                     return;
                 }
                 if (problem.length < 5) {
@@ -1639,10 +1608,6 @@
                 const label = btn.textContent;
                 btn.disabled = true;
                 btn.textContent = '⏳ جاري الإرسال…';
-                const salt = hexSalt();
-
-                pbkdf2Hex(pass, salt).then(function (hash) {
-                const lock = salt + ':' + hash;
 
                 let uploaded = [];
                 let shotsFailed = false;
@@ -1666,7 +1631,7 @@
                 chain
                     .then(function () {
                         btn.textContent = '⏳ جاري الإرسال…';
-                        return sendReport(name, user, problem, contact, uploaded, shotsFailed, code, lock);
+                        return sendReport(name, problem, contact, uploaded, shotsFailed, code, acct);
                     })
                     .then(function (r) {
                         if (!r.ok) throw r.status;
@@ -1675,9 +1640,11 @@
                         showDone(code);
                         try {
                             localStorage.setItem('bfo_last_code', code);
-                            localStorage.setItem('bfo_user', user);
-                            localStorage.setItem('bfo_lock_' + code, lock);
-                            localStorage.setItem('bfo_unlock_' + code, '1');
+                            if (acct) {
+                                localStorage.setItem('bfo_user', acct.user);
+                                localStorage.setItem('bfo_lock_' + code, acct.salt + ':' + acct.hash);
+                                localStorage.setItem('bfo_unlock_' + code, '1');
+                            }
                         } catch (err) {}
                         if (shotsFailed) say('⚠️ وصل البلاغ، لكن الصور ما اترفعتش — جرّب صورة أصغر.', true);
                     })
@@ -1688,11 +1655,6 @@
                         btn.disabled = false;
                         btn.textContent = label;
                     });
-                }).catch(function () {
-                    btn.disabled = false;
-                    btn.textContent = label;
-                    say('⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.', false);
-                });
             });
         })();
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - POS Market BFO</title>
+    <title>الحساب - POS Market BFO</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
 
@@ -65,7 +65,7 @@
             background: var(--white);
             border-radius: var(--radius);
             box-shadow: 0 10px 40px rgba(0, 0, 0, .08);
-            max-width: 520px;
+            max-width: 540px;
             width: 100%;
             padding: 30px;
             border-top: 6px solid var(--primary);
@@ -75,7 +75,7 @@
 
         .sub { color: var(--gray); font-size: 14.5px; margin-bottom: 18px; line-height: 1.9; }
 
-        .code-chip {
+        .code-chip, .user-chip {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -90,6 +90,31 @@
         }
 
         .code-chip b { color: var(--secondary); font-size: 17px; letter-spacing: 1px; direction: ltr; }
+        .user-chip b { color: var(--secondary); font-size: 16px; }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            background: #f3f6ff;
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .tab {
+            flex: 1;
+            border: 0;
+            background: transparent;
+            color: var(--gray);
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 10px;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        .tab.on { background: var(--white); color: var(--primary); box-shadow: 0 2px 10px rgba(67, 97, 238, .16); }
 
         form { display: flex; flex-direction: column; gap: 10px; }
 
@@ -106,7 +131,7 @@
 
         input:focus { outline: none; border-color: var(--primary); background: var(--white); }
 
-        button {
+        button[type="submit"] {
             border: 0;
             background: var(--primary);
             color: var(--white);
@@ -118,8 +143,33 @@
             cursor: pointer;
         }
 
-        button:hover:not(:disabled) { background: var(--primary-dark); }
-        button:disabled { opacity: .6; cursor: default; }
+        button[type="submit"]:hover:not(:disabled) { background: var(--primary-dark); }
+        button[type="submit"]:disabled { opacity: .6; cursor: default; }
+
+        .btns { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+
+        .btn {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 16px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            border: 2px solid #e3e8ee;
+            background: var(--white);
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        .btn:hover { border-color: var(--primary); }
+
+        .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--white); }
+        .btn.primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+
+        .btn.quit { background: #fdf3f2; border-color: #f3d6d2; color: #c0392b; }
+        .btn.quit:hover { border-color: #c0392b; }
 
         .status { margin-top: 12px; font-size: 14px; font-weight: 700; line-height: 1.9; }
         .status.ok { color: #1d6b45; }
@@ -127,9 +177,6 @@
 
         .note { margin-top: 16px; font-size: 13px; color: var(--gray); line-height: 1.9; }
         .note a { color: var(--primary); font-weight: 800; text-decoration: none; }
-
-        .alt { margin-top: 14px; font-size: 13.5px; color: var(--gray); }
-        .alt a { color: var(--primary); font-weight: 800; text-decoration: none; }
 
         footer { padding: 18px; text-align: center; font-size: 12.5px; color: var(--gray); }
         footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
@@ -147,36 +194,87 @@
         <nav>
             <a href="index.html">الرئيسية</a>
             <a href="guide.html">📖 الدليل</a>
-            <a href="index.html#support">🐞 بلّغ عن خطأ</a>
+            <a href="follow.html">🔎 متابعة بلاغ</a>
         </nav>
     </header>
 
     <main>
         <div class="card">
-            <h1>🔐 تسجيل الدخول</h1>
-            <p class="sub">عشان تفتح بلاغك وتشوف الردود وتضيف كلام عليه، اكتب اسم المستخدم وكلمة السر اللي اخترتهم وقت الإرسال.</p>
 
-            <div class="code-chip" id="codeChip" hidden>
-                <span>البلاغ:</span>
-                <b id="codeLabel">BFO-0000</b>
+            <!-- الحالة: مسجل دخول -->
+            <div id="viewIn" hidden>
+                <h1>👤 حسابك</h1>
+                <p class="sub">انت مسجّل دخول على الجهاز ده. أي بلاغ تبعته وانت داخل بحسابك بيتقفل عليك، وانت بس اللي تقدر تضيف عليه.</p>
+
+                <div class="user-chip">
+                    <span>اسم المستخدم:</span>
+                    <b id="inUser">—</b>
+                </div>
+
+                <div class="btns">
+                    <a class="btn primary" href="index.html#support">📝 ابعت بلاغ</a>
+                    <a class="btn" href="follow.html">🔎 تابع بلاغ بكود</a>
+                    <button class="btn quit" type="button" id="logout">🚪 تسجيل خروج</button>
+                </div>
+
+                <p class="note">
+                    الحساب بيتخزّن على الجهاز ده بس، وكلمة السر مش بتتبعت لأي مكان — بنحفظ تشفيرها.
+                    لو نسيتها مفيش استرجاع تلقائي؛ كلّم المطور على
+                    <a href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank" rel="noopener">Facebook</a>.
+                </p>
             </div>
 
-            <form id="loginForm" autocomplete="off" novalidate>
-                <input id="user" type="text" maxlength="30" placeholder="اسم المستخدم" aria-label="اسم المستخدم" spellcheck="false" autocomplete="username">
-                <input id="pass" type="password" maxlength="60" placeholder="كلمة السر" aria-label="كلمة السر" autocomplete="current-password">
-                <button type="submit" id="go">🔓 دخول وفتح البلاغ</button>
-            </form>
+            <!-- الحالة: داخل لبلاغ مقفول -->
+            <div id="viewCode" hidden>
+                <h1>🔐 الدخول لبلاغك</h1>
+                <p class="sub">البلاغ ده مقفول عليك. اكتب اسم المستخدم وكلمة السر اللي كنت داخل بيهم وقت ما بعت البلاغ، وبعدها هنرجّعك على البلاغ على طول.</p>
 
-            <p class="status" id="status"></p>
+                <div class="code-chip">
+                    <span>البلاغ:</span>
+                    <b id="codeLabel">BFO-0000</b>
+                </div>
 
-            <p class="alt" id="alt" hidden></p>
+                <form id="codeForm" autocomplete="off" novalidate>
+                    <input id="cUser" type="text" maxlength="30" placeholder="اسم المستخدم" aria-label="اسم المستخدم" spellcheck="false" autocomplete="username">
+                    <input id="cPass" type="password" maxlength="60" placeholder="كلمة السر" aria-label="كلمة السر" autocomplete="current-password">
+                    <button type="submit" id="cGo">🔓 دخول وفتح البلاغ</button>
+                </form>
 
-            <p class="note">
-                مش فاكر اسم المستخدم أو كلمة السر؟ مفيش استرجاع تلقائي — كلّم المطور على
-                <a href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank" rel="noopener">Facebook</a> أو
-                <a href="https://discord.com/channels/970119086493274132/970119086493274135" target="_blank" rel="noopener">Discord</a>
-                وقوله كود بلاغك.
-            </p>
+                <p class="status" id="cStatus"></p>
+
+                <p class="note">
+                    مش فاكر كلمة السر؟ مفيش استرجاع تلقائي — كلّم المطور على
+                    <a href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank" rel="noopener">Facebook</a> أو
+                    <a href="https://discord.com/channels/970119086493274132/970119086493274135" target="_blank" rel="noopener">Discord</a>
+                    وقوله كود بلاغك.
+                </p>
+            </div>
+
+            <!-- الحالة: مش مسجل -->
+            <div id="viewAuth" hidden>
+                <h1>🔐 الحساب</h1>
+                <p class="sub">سجّل حسابك الأول (أو ادخل لو عندك حساب)، وبعد كده ابعت بلاغك من صفحة البلاغ وقت ما تحب. التسجيل لوحده مش بيبعت أي بلاغ.</p>
+
+                <div class="tabs">
+                    <button class="tab on" type="button" id="tabLogin">دخول</button>
+                    <button class="tab" type="button" id="tabReg">حساب جديد</button>
+                </div>
+
+                <form id="authForm" autocomplete="off" novalidate>
+                    <input id="user" type="text" maxlength="30" placeholder="اسم المستخدم" aria-label="اسم المستخدم" spellcheck="false" autocomplete="username">
+                    <input id="pass" type="password" maxlength="60" placeholder="كلمة السر" aria-label="كلمة السر" autocomplete="current-password">
+                    <input id="pass2" type="password" maxlength="60" placeholder="أكّد كلمة السر" aria-label="تأكيد كلمة السر" autocomplete="new-password" hidden>
+                    <button type="submit" id="go">🔓 دخول</button>
+                </form>
+
+                <p class="status" id="status"></p>
+
+                <p class="note">
+                    الحساب بيتخزّن على الجهاز ده بس — مش عندنا سيرفر. أي بلاغ تبعته وانت داخل بيتقفل على اسم المستخدم ده،
+                    وتقدر تفتحه من أي جهاز بنفس اسم المستخدم وكلمة السر من صفحة «متابعة البلاغ».
+                </p>
+            </div>
+
         </div>
     </main>
 
@@ -189,20 +287,52 @@
 
     <script>
         const INBOX = 'https://ntfy.sh/posbfo-bug-reports-7qm4x2v9';
+        const ACC_KEY = 'bfo_account';
+        const SES_KEY = 'bfo_session';
 
-        const input = document.getElementById('user');
+        const viewIn = document.getElementById('viewIn');
+        const viewAuth = document.getElementById('viewAuth');
+        const viewCode = document.getElementById('viewCode');
+        const inUser = document.getElementById('inUser');
+        const logoutBtn = document.getElementById('logout');
+        const codeLabel = document.getElementById('codeLabel');
+        const cUser = document.getElementById('cUser');
+        const cPass = document.getElementById('cPass');
+        const codeForm = document.getElementById('codeForm');
+        const cGo = document.getElementById('cGo');
+        const cStatus = document.getElementById('cStatus');
+        const tabLogin = document.getElementById('tabLogin');
+        const tabReg = document.getElementById('tabReg');
+        const authForm = document.getElementById('authForm');
+        const userEl = document.getElementById('user');
         const passEl = document.getElementById('pass');
-        const form = document.getElementById('loginForm');
+        const pass2El = document.getElementById('pass2');
         const go = document.getElementById('go');
         const statusEl = document.getElementById('status');
-        const altEl = document.getElementById('alt');
-        const codeChip = document.getElementById('codeChip');
-        const codeLabel = document.getElementById('codeLabel');
 
-        function esc(s) {
-            return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-            });
+        function readJSON(key) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) { return null; }
+        }
+
+        function store(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+        function drop(key) { try { localStorage.removeItem(key); } catch (e) {} }
+
+        function currentAccount() {
+            const a = readJSON(ACC_KEY);
+            if (!a || !a.user || !a.salt || !a.hash) return null;
+            return a;
+        }
+
+        function sessionUser() {
+            try { return localStorage.getItem(SES_KEY) || ''; } catch (e) { return ''; }
+        }
+
+        function activeSession() {
+            const a = currentAccount();
+            return a && sessionUser() === a.user ? a : null;
         }
 
         function norm(raw) {
@@ -230,8 +360,6 @@
             return m ? { salt: m[1].toLowerCase(), hash: m[2].toLowerCase() } : null;
         }
 
-        function unlockKey(code) { return 'bfo_unlock_' + code; }
-
         function localLock(code) {
             try {
                 const raw = localStorage.getItem('bfo_lock_' + code);
@@ -240,9 +368,17 @@
             } catch (e) { return null; }
         }
 
+        function unlockKey(code) { return 'bfo_unlock_' + code; }
+
         function sameName(a, b) {
             const f = function (s) { return String(s || '').toLowerCase().replace(/\s+/g, ''); };
             return f(a) === f(b);
+        }
+
+        function hexSalt() {
+            const b = new Uint8Array(8);
+            crypto.getRandomValues(b);
+            return Array.from(b).map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
         }
 
         function pbkdf2Hex(pass, salt) {
@@ -285,144 +421,255 @@
             }).catch(function () { return null; });
         }
 
-        function say(msg, ok) {
-            statusEl.textContent = msg;
-            statusEl.className = 'status ' + (ok ? 'ok' : 'err');
+        function say(el, msg, ok) {
+            el.textContent = msg;
+            el.className = 'status ' + (ok ? 'ok' : 'err');
         }
 
-        function goToReport(code, delay) {
+        function goReport(code) {
             setTimeout(function () {
                 location.replace('follow.html?code=' + encodeURIComponent(code));
-            }, delay || 700);
+            }, 700);
         }
 
-        const queryCode = norm(new URLSearchParams(location.search).get('code'));
+        // ===================== وضع البلاغ المقفول (?code=) =====================
+        const query = new URLSearchParams(location.search);
+        const lockCode = norm(query.get('code'));
 
-        let savedCode = '';
-        try { savedCode = localStorage.getItem('bfo_last_code') || ''; } catch (e) {}
-        const code = queryCode || norm(savedCode);
+        if (lockCode) {
+            viewCode.hidden = false;
+            codeLabel.textContent = lockCode;
 
-        let lock = null;
-        let lockName = '';
-        let busy = false;
+            let lock = localLock(lockCode);
+            let lockName = '';
+            let codeRows = null;
+            let codeBusy = false;
 
-        function loadReport() {
-            return getInbox().then(function (rows) {
-                const rep = rows ? findReport(rows, code) : null;
-                if (rep) {
-                    if (!lock) lock = lockOf(rep.message);
-                    lockName = nameOf(rep.message);
-                }
-                return rows;
-            });
-        }
-
-        function openReport() {
-            say('البلاغ ده مش مقفول بكلمة سر — بنفتحه على طول…', true);
-            try { localStorage.setItem(unlockKey(code), '1'); } catch (e) {}
-            goToReport(code, 900);
-        }
-
-        function verify(user, pass) {
-            const label = go.textContent;
-            go.disabled = true;
-            go.textContent = '⏳ بنتأكد…';
-            say('', false);
-            pbkdf2Hex(pass, lock.salt).then(function (hash) {
-                if (hash !== lock.hash) throw new Error('wrong');
-                try {
-                    localStorage.setItem(unlockKey(code), '1');
-                    localStorage.setItem('bfo_user', user);
-                    localStorage.setItem('bfo_lock_' + code, lock.salt + ':' + lock.hash);
-                } catch (err) {}
-                passEl.value = '';
-                say('✅ تم الدخول — بنفتح بلاغك…', true);
-                goToReport(code, 600);
-            }).catch(function (err) {
-                say((err && err.message === 'no-subtle')
-                    ? '⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.'
-                    : '❌ كلمة السر غلط — جرّب تاني.', false);
-            }).then(function () {
-                go.disabled = false;
-                go.textContent = label;
-            });
-        }
-
-        (function init() {
-            let savedUser = '';
-            try { savedUser = localStorage.getItem('bfo_user') || ''; } catch (e) {}
-            if (savedUser) input.value = savedUser;
-
-            if (!code) {
-                say('مفيش بلاغ مفتوح — اكتب كود البلاغ في صفحة «متابعة البلاغ» الأول.', false);
-                altEl.hidden = false;
-                altEl.innerHTML = '<a href="follow.html">افتح صفحة متابعة البلاغ ←</a>';
-                go.disabled = true;
-                return;
+            function loadLock() {
+                return getInbox().then(function (rows) {
+                    codeRows = rows;
+                    const rep = rows ? findReport(rows, lockCode) : null;
+                    if (rep) {
+                        if (!lock) lock = lockOf(rep.message);
+                        lockName = nameOf(rep.message);
+                    }
+                    return rows;
+                });
             }
 
-            codeChip.hidden = false;
-            codeLabel.textContent = code;
-            try { history.replaceState(null, '', 'login.html?code=' + encodeURIComponent(code)); } catch (e) {}
+            function openUnlocked() {
+                say(cStatus, 'البلاغ ده مش مقفول — بنفتحه على طول…', true);
+                store(unlockKey(lockCode), '1');
+                goReport(lockCode);
+            }
 
-            lock = localLock(code);
-            say('⏳ بنجيب بيانات البلاغ…', false);
-            loadReport().then(function (rows) {
-                if (!input.value && lockName) input.value = lockName;
-                if (lock) {
-                    say('', false);
+            function verifyReport(user, pass) {
+                const label = cGo.textContent;
+                cGo.disabled = true;
+                cGo.textContent = '⏳ بنتأكد…';
+                say(cStatus, '', false);
+                pbkdf2Hex(pass, lock.salt).then(function (hash) {
+                    if (hash !== lock.hash) throw new Error('wrong');
+                    store(unlockKey(lockCode), '1');
+                    store('bfo_user', user);
+                    store('bfo_lock_' + lockCode, lock.salt + ':' + lock.hash);
+                    if (!currentAccount()) {
+                        store(ACC_KEY, JSON.stringify({
+                            user: lockName || user,
+                            salt: lock.salt,
+                            hash: lock.hash
+                        }));
+                        store(SES_KEY, lockName || user);
+                    }
+                    cPass.value = '';
+                    say(cStatus, '✅ تم الدخول — بنفتح بلاغك…', true);
+                    goReport(lockCode);
+                }).catch(function (err) {
+                    say(cStatus, (err && err.message === 'no-subtle')
+                        ? '⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.'
+                        : '❌ كلمة السر غلط — جرّب تاني.', false);
+                }).then(function () {
+                    cGo.disabled = false;
+                    cGo.textContent = label;
+                });
+            }
+
+            say(cStatus, '⏳ بنجيب بيانات البلاغ…', false);
+            loadLock().then(function (rows) {
+                if (!rows) {
+                    say(cStatus, '⚠️ مش قادرين نجيب بيانات البلاغ دلوقتي — اتأكد من الإنترنت وجرّب تحديث الصفحة.', false);
+                    return;
+                }
+                if (!lock) { openUnlocked(); return; }
+                if (lockName) cUser.value = lockName;
+                say(cStatus, '', false);
+                cPass.focus();
+            });
+
+            codeForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (codeBusy) return;
+                const user = cUser.value.trim();
+                const pass = cPass.value;
+                if (!user) { say(cStatus, 'اكتب اسم المستخدم.', false); cUser.focus(); return; }
+                if (!pass) { say(cStatus, 'اكتب كلمة السر.', false); cPass.focus(); return; }
+
+                if (!lock) {
+                    codeBusy = true;
+                    loadLock().then(function (rows) {
+                        codeBusy = false;
+                        if (!lock) {
+                            if (rows) openUnlocked();
+                            else say(cStatus, '⚠️ مش قادرين نجيب بيانات البلاغ — جرّب تاني.', false);
+                            return;
+                        }
+                        if (lockName) {
+                            if (!cUser.value && lockName) cUser.value = lockName;
+                            if (!sameName(user, lockName)) {
+                                say(cStatus, 'اسم المستخدم مش مطابق لصاحب البلاغ.', false);
+                                return;
+                            }
+                        }
+                        verifyReport(user, pass);
+                    });
+                    return;
+                }
+
+                if (lockName && !sameName(user, lockName)) {
+                    say(cStatus, 'اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس اسم المستخدم اللي اخترته وقت الإرسال.', false);
+                    cUser.focus();
+                    return;
+                }
+                verifyReport(user, pass);
+            });
+
+        // ===================== وضع الحساب العادي =====================
+        } else {
+            let mode = 'login';
+
+            function setMode(next) {
+                mode = next;
+                tabLogin.classList.toggle('on', mode === 'login');
+                tabReg.classList.toggle('on', mode === 'register');
+                pass2El.hidden = mode !== 'register';
+                go.textContent = mode === 'login' ? '🔓 دخول' : '✅ اعمل حسابي';
+                say(statusEl, '', false);
+            }
+
+            function showAccount() {
+                const acct = activeSession();
+                if (!acct) {
+                    viewIn.hidden = true;
+                    viewAuth.hidden = false;
+                    return;
+                }
+                inUser.textContent = acct.user;
+                viewAuth.hidden = true;
+                viewIn.hidden = false;
+            }
+
+            tabLogin.addEventListener('click', function () { setMode('login'); });
+            tabReg.addEventListener('click', function () { setMode('register'); });
+
+            logoutBtn.addEventListener('click', function () {
+                drop(SES_KEY);
+                drop('bfo_user');
+                userEl.value = '';
+                passEl.value = '';
+                pass2El.value = '';
+                setMode('login');
+                showAccount();
+                say(statusEl, '✅ خرجت من حسابك.', true);
+            });
+
+            authForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const user = userEl.value.trim();
+                const pass = passEl.value;
+
+                if (user.length < 3) {
+                    say(statusEl, 'اكتب اسم مستخدم 3 حروف على الأقل.', false);
+                    userEl.focus();
+                    return;
+                }
+                if (pass.length < 4) {
+                    say(statusEl, 'كلمة السر لازم 4 حروف أو أرقام على الأقل.', false);
                     passEl.focus();
                     return;
                 }
-                if (!rows) {
-                    say('⚠️ مش قادرين نجيب بيانات البلاغ دلوقتي — اتأكد من الإنترنت وجرّب تحديث الصفحة.', false);
-                    return;
-                }
-                openReport();
-            });
-        })();
 
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            if (!code || busy) return;
-            const user = input.value.trim();
-            const pass = passEl.value;
-
-            if (!user) { say('اكتب اسم المستخدم.', false); input.focus(); return; }
-            if (!pass) { say('اكتب كلمة السر.', false); passEl.focus(); return; }
-
-            if (!lock) {
-                busy = true;
                 const label = go.textContent;
                 go.disabled = true;
-                go.textContent = '⏳ بنجيب بيانات البلاغ…';
-                loadReport().then(function (rows) {
-                    busy = false;
+
+                if (mode === 'register') {
+                    if (pass !== pass2El.value) {
+                        go.disabled = false;
+                        say(statusEl, 'كلمة السر والتأكيد مش زي بعض — اكتبهم تاني.', false);
+                        pass2El.focus();
+                        return;
+                    }
+                    const old = currentAccount();
+                    if (old && !sameName(old.user, user)) {
+                        const sure = confirm('فيه حساب تاني على الجهاز ده باسم «' + old.user + '». لو كملت، الحساب الجديد هيحل محله. تكمل؟');
+                        if (!sure) {
+                            go.disabled = false;
+                            return;
+                        }
+                    }
+                    go.textContent = '⏳ بنعمل الحساب…';
+                    const salt = hexSalt();
+                    pbkdf2Hex(pass, salt).then(function (hash) {
+                        store(ACC_KEY, JSON.stringify({ user: user, salt: salt, hash: hash }));
+                        store(SES_KEY, user);
+                        store('bfo_user', user);
+                        passEl.value = '';
+                        pass2El.value = '';
+                        showAccount();
+                        say(statusEl, '✅ عملت حسابك باسم «' + user + '» — دلوقتي ابعت بلاغك من صفحة البلاغ.', true);
+                    }).catch(function (err) {
+                        say(statusEl, (err && err.message === 'no-subtle')
+                            ? '⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.'
+                            : '⚠️ ما قدرناش نعمل الحساب — جرّب تاني.', false);
+                    }).then(function () {
+                        go.disabled = false;
+                        go.textContent = label;
+                    });
+                    return;
+                }
+
+                const acct = currentAccount();
+                if (!acct) {
+                    go.disabled = false;
+                    say(statusEl, 'مفيش حساب محفوظ على الجهاز ده — دوس «حساب جديد» واعمله الأول.', false);
+                    return;
+                }
+                if (!sameName(acct.user, user)) {
+                    go.disabled = false;
+                    say(statusEl, 'الاسم ده مش مطابق للحساب اللي على الجهاز — راجع اسم المستخدم، أو دوس «حساب جديد».', false);
+                    return;
+                }
+                go.textContent = '⏳ بنتأكد…';
+                pbkdf2Hex(pass, acct.salt).then(function (hash) {
+                    if (hash !== acct.hash) throw new Error('wrong');
+                    store(SES_KEY, acct.user);
+                    store('bfo_user', acct.user);
+                    passEl.value = '';
+                    showAccount();
+                    say(statusEl, '✅ تم الدخول — ابعت بلاغك وقت ما تحب.', true);
+                }).catch(function (err) {
+                    say(statusEl, (err && err.message === 'no-subtle')
+                        ? '⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.'
+                        : '❌ كلمة السر غلط — جرّب تاني.', false);
+                }).then(function () {
                     go.disabled = false;
                     go.textContent = label;
-                    if (!lock) {
-                        if (rows) openReport();
-                        else say('⚠️ مش قادرين نجيب بيانات البلاغ — اتأكد من الإنترنت وجرّب تاني.', false);
-                        return;
-                    }
-                    if (!input.value && lockName) input.value = lockName;
-                    if (lockName && !sameName(user, lockName)) {
-                        say('اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس اسم المستخدم اللي اخترته وقت الإرسال.', false);
-                        input.focus();
-                        return;
-                    }
-                    verify(user, pass);
                 });
-                return;
-            }
+            });
 
-            if (lockName && !sameName(user, lockName)) {
-                say('اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس اسم المستخدم اللي اخترته وقت الإرسال.', false);
-                input.focus();
-                return;
-            }
-            verify(user, pass);
-        });
+            const saved = currentAccount();
+            if (saved && !activeSession()) userEl.value = saved.user;
+            showAccount();
+        }
     </script>
 
 </body>
