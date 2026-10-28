@@ -577,6 +577,53 @@
 
         .honeypot { position: absolute; left: -5000px; }
 
+        .done-box {
+            display: none;
+            margin-top: 16px;
+            padding: 16px 18px;
+            border: 2px solid #27ae60;
+            background: #f2fbf6;
+            border-radius: 12px;
+        }
+
+        .done-box.show { display: block; }
+
+        .done-box strong { display: block; font-size: 16px; color: #1d6b45; }
+
+        .done-code { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 10px 0; font-size: 14px; color: #1d6b45; }
+
+        .done-code b {
+            font-family: monospace;
+            font-size: 22px;
+            letter-spacing: 1px;
+            background: var(--white);
+            border: 2px dashed #27ae60;
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: var(--dark);
+            direction: ltr;
+        }
+
+        .copy-btn {
+            border: 0;
+            background: #27ae60;
+            color: #fff;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .done-box p { margin: 6px 0; font-size: 14px; color: #1d6b45; }
+
+        .done-box a { font-weight: 800; color: var(--primary); }
+
+        .follow-line { text-align: center; margin-top: 12px; font-size: 13px; color: var(--gray); }
+
+        .follow-line a { font-weight: 800; color: var(--primary); }
+
         .form-row input[type="file"] { padding: 10px 12px; background: var(--white); cursor: pointer; }
 
         .form-row input[type="file"]::file-selector-button {
@@ -1044,7 +1091,7 @@
             <div class="features-grid">
                 <div class="support-card form-card">
                     <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
-                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب.</p>
+                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وبعد الإرسال هتاخد كود تشوف بيه رد المطور.</p>
                     <form id="bugForm" autocomplete="off" novalidate>
                         <div class="form-row">
                             <label for="bugName">اسمك *</label>
@@ -1068,7 +1115,17 @@
                         <input class="honeypot" id="bugWeb" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
                         <button type="submit" class="btn-primary" id="bugSend" style="font-size:18px; padding:13px 34px;">📨 إرسال البلاغ</button>
                         <p class="form-status" id="bugStatus" role="status"></p>
+                        <div class="done-box" id="bugDone">
+                            <strong>✅ وصل بلاغك، شكراً لك!</strong>
+                            <div class="done-code">
+                                <span>كود المتابعة:</span>
+                                <b id="bugCode">BFO-0000</b>
+                                <button type="button" class="copy-btn" id="bugCopy">📋 نسخ</button>
+                            </div>
+                            <p>احفظ الكود ده — تكتبه في <a id="bugFollow" href="follow.html">صفحة متابعة البلاغ</a> وتشوف رد المطور على مشكلتك.</p>
+                        </div>
                     </form>
+                    <p class="follow-line">عندك كود بلاغ؟ <a href="follow.html">تابع الرد من هنا ←</a></p>
                 </div>
 
                 <div class="support-card">
@@ -1155,6 +1212,7 @@
             <div>
                 <h4>الدعم</h4>
                 <a href="#support">🐞 الإبلاغ عن خطأ</a><br>
+                <a href="follow.html">🔎 متابعة بلاغ بكود</a><br>
                 <a href="https://github.com/XomargamerX3/POS-Market-BFO-website/issues" target="_blank">🗂️ كل البلاغات</a><br>
                 <a href="https://www.youtube.com/@xomargamerx978" target="_blank">▶️ YouTube</a><br>
                 <a href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank">📘 Facebook</a><br>
@@ -1249,8 +1307,53 @@
             const trapEl = document.getElementById('bugWeb');
             const btn = document.getElementById('bugSend');
             const status = document.getElementById('bugStatus');
+            const doneBox = document.getElementById('bugDone');
+            const codeEl = document.getElementById('bugCode');
+            const copyBtn = document.getElementById('bugCopy');
+            const followLink = document.getElementById('bugFollow');
             const MAX_SHOTS = 3;
             let shots = [];
+
+            function makeCode() {
+                const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+                const buf = new Uint8Array(4);
+                if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(buf);
+                else for (let i = 0; i < 4; i++) buf[i] = Math.floor(Math.random() * 256);
+                let out = '';
+                for (let i = 0; i < 4; i++) out += chars[buf[i] % chars.length];
+                return 'BFO-' + out;
+            }
+
+            function showDone(code) {
+                codeEl.textContent = code;
+                followLink.href = 'follow.html?code=' + encodeURIComponent(code);
+                doneBox.className = 'done-box show';
+            }
+
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function () {
+                    const code = codeEl.textContent;
+                    const done = function () {
+                        copyBtn.textContent = '✅ اتنسخ';
+                        setTimeout(function () { copyBtn.textContent = '📋 نسخ'; }, 1800);
+                    };
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(code).then(done, function () {
+                            const r = document.createRange();
+                            r.selectNodeContents(codeEl);
+                            const sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(r);
+                        });
+                    } else {
+                        const r = document.createRange();
+                        r.selectNodeContents(codeEl);
+                        const sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(r);
+                    }
+                });
+            }
 
             function say(msg, ok) {
                 status.textContent = msg;
@@ -1343,8 +1446,9 @@
                 });
             }
 
-            function sendReport(name, problem, contact, links, shotsFailed) {
+            function sendReport(name, problem, contact, links, shotsFailed, code) {
                 let body = 'بلاغ جديد من موقع POS Market BFO\n\n';
+                body += 'كود البلاغ: ' + code + '\n';
                 body += 'الاسم: ' + name + '\n';
                 if (contact) body += 'للتواصل: ' + contact + '\n';
                 body += '\n' + problem + '\n';
@@ -1388,6 +1492,10 @@
                 }
 
                 const toSend = shots.slice();
+                const code = makeCode();
+                doneBox.className = 'done-box';
+                status.textContent = '';
+                status.className = 'form-status';
                 const label = btn.textContent;
                 btn.disabled = true;
                 btn.textContent = '⏳ جاري الإرسال…';
@@ -1414,14 +1522,15 @@
                 chain
                     .then(function () {
                         btn.textContent = '⏳ جاري الإرسال…';
-                        return sendReport(name, problem, contact, uploaded, shotsFailed);
+                        return sendReport(name, problem, contact, uploaded, shotsFailed, code);
                     })
                     .then(function (r) {
                         if (!r.ok) throw r.status;
                         form.reset();
                         clearShots();
-                        if (shotsFailed) say('✅ وصل البلاغ، لكن الصور ما اترفعتش — جرّب صورة أصغر.', true);
-                        else say('✅ وصل بلاغك، شكراً لك! هنشوفه في أقرب وقت.', true);
+                        showDone(code);
+                        try { localStorage.setItem('bfo_last_code', code); } catch (err) {}
+                        if (shotsFailed) say('⚠️ وصل البلاغ، لكن الصور ما اترفعتش — جرّب صورة أصغر.', true);
                     })
                     .catch(function () {
                         say('⚠️ ما قدرناش نرسل البلاغ. جرّب تاني، أو ابعتلنا على Discord أو Facebook من تحت.', false);
