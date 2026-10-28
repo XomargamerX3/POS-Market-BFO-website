@@ -173,9 +173,25 @@
         .bubble .who { display: block; font-size: 11.5px; font-weight: 800; color: var(--gray); margin-bottom: 2px; }
         .bubble a { color: var(--primary); word-break: break-all; }
 
+        .owner-box {
+            margin: 0 0 18px;
+            padding: 12px 16px;
+            border: 2px dashed #cbd4e1;
+            border-radius: 12px;
+            background: #fafbfc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 13.5px;
+            color: var(--gray);
+            line-height: 1.9;
+        }
+        .owner-box[hidden] { display: none; }
+        .owner-box .loginLink { margin-top: 0; }
         .loginLink {
             display: inline-block;
-            margin-top: 10px;
             padding: 10px 20px;
             border-radius: 10px;
             background: var(--primary);
@@ -184,6 +200,7 @@
             text-decoration: none;
         }
         .loginLink:hover { background: var(--primary-dark); }
+        .status .loginLink { margin-top: 10px; }
 
         #addBox { margin-top: 18px; border-top: 2px solid #eef1f5; padding-top: 16px; }
         #addBox h2 { font-size: 16px; margin-bottom: 6px; }
@@ -252,6 +269,10 @@
                 اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR</b>) — الرد بيظهر لوحده أول ما الكود يكتمل، والصفحة بتحدّث نفسها كل شوية.
                 الكود بيتبعت جوه البلاغ نفسه كمان. ولو صاحب البلاغ حطّ اسم مستخدم وكلمة سر، هتحتاجهم عشان تضيف كلام على البلاغ.
             </p>
+            <div class="owner-box" id="ownerBox">
+                <span>انت صاحب البلاغ؟ سجّل دخولك هنا عشان تضيف كلام على بلاغك.</span>
+                <a class="loginLink" id="loginBtn" href="login.html">🔐 تسجيل الدخول</a>
+            </div>
             <form id="followForm" autocomplete="off" novalidate>
                 <input id="code" type="text" maxlength="14" placeholder="BFO-OMAR" aria-label="كود البلاغ" spellcheck="false">
                 <button type="submit" id="go">اعرض الرد</button>
@@ -292,6 +313,8 @@
         const addThumbs = document.getElementById('addThumbs');
         const addSend = document.getElementById('addSend');
         const addStatus = document.getElementById('addStatus');
+        const loginBtn = document.getElementById('loginBtn');
+        const ownerBox = document.getElementById('ownerBox');
 
         const ADD_PREFIX = 'إضافة على البلاغ';
         const MAX_SHOTS = 3;
@@ -421,7 +444,9 @@
             const fromReport = report ? lockOf(report.message) : null;
             if (fromReport) rememberLock(code, fromReport);
             const lock = fromReport || rememberedLock(code);
-            const open = !lock || isUnlocked(code);
+            const loggedIn = isUnlocked(code);
+            ownerBox.hidden = loggedIn;
+            const open = !lock || loggedIn;
             addBox.hidden = !open;
             if (open) return;
             askLogin(code);
@@ -561,6 +586,7 @@
             checking = true;
             lastCheckAt = Date.now();
             lastCode = code;
+            loginBtn.href = 'login.html?code=' + encodeURIComponent(code);
             if (!quiet) input.value = code;
 
             try { history.replaceState(null, '', 'follow.html?code=' + encodeURIComponent(code)); } catch (e) {}
