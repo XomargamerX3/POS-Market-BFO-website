@@ -283,8 +283,32 @@
             const m = body.match(/^(fixed|working|note)\s*[:\-–—]?\s*/i);
             if (m) return { status: m[1].toLowerCase(), body: body.slice(m[0].length) };
             if (/(اتصلح|إصلاح|اصلاح|تصليح)/.test(body)) return { status: 'fixed', body: body };
-            if (/(جاري|بشتغل|قيد العمل|لسه شغالين)/.test(body)) return { status: 'working', body: body };
+            if (/(جاري|بشتغل|بنشتغل|قيد العمل|شغالين)/.test(body)) return { status: 'working', body: body };
             return { status: 'note', body: body };
+        }
+
+        function dateOf(t) {
+            return new Date((t || 0) * 1000).toISOString().slice(0, 10);
+        }
+
+        function jsonReplies(msg) {
+            const t = String(msg.message || '').trim();
+            if (t.charAt(0) !== '{') return null;
+            let o;
+            try { o = JSON.parse(t); } catch (e) { return null; }
+            if (!o || typeof o !== 'object') return null;
+            const out = {};
+            Object.keys(o).forEach(function (k) {
+                const c = norm(k);
+                const v = o[k];
+                if (!c || !v || typeof v !== 'object') return;
+                out[c] = {
+                    status: String(v.status || 'note').toLowerCase(),
+                    reply: v.reply == null ? '' : String(v.reply),
+                    date: v.date ? String(v.date) : dateOf(msg.time)
+                };
+            });
+            return Object.keys(out).length ? out : null;
         }
 
         function findInboxReply(rows, code) {
@@ -292,6 +316,11 @@
             rows.forEach(function (j) {
                 if (j.message.indexOf('بلاغ جديد من موقع') === 0) return;
                 if (j.message.indexOf('You received a file') === 0) return;
+                const js = jsonReplies(j);
+                if (js) {
+                    if (js[code]) found = js[code];
+                    return;
+                }
                 if (!hasCode(j.message, code)) return;
                 const stripped = j.message.replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
                     .replace(/^[\s:\-–—]+/, '').trim();
@@ -299,7 +328,7 @@
                 found = {
                     status: st.status,
                     reply: st.body,
-                    date: new Date((j.time || 0) * 1000).toISOString().slice(0, 10)
+                    date: dateOf(j.time)
                 };
             });
             return found;
