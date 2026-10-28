@@ -567,6 +567,33 @@
 
         .form-row textarea { min-height: 150px; resize: vertical; }
 
+        .code-input { display: flex; direction: ltr; }
+
+        .code-input .code-prefix {
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border: 2px solid #e3e8ee;
+            border-right: 0;
+            border-radius: 10px 0 0 10px;
+            background: #eef4fb;
+            color: var(--primary);
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            white-space: nowrap;
+        }
+
+        .code-input input {
+            flex: 1;
+            width: auto;
+            min-width: 0;
+            border-radius: 0 10px 10px 0;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
         .form-hint { display: block; margin-top: 6px; font-size: 12.5px; color: var(--gray); }
 
         .form-status { display: none; margin-top: 14px; font-size: 15px; font-weight: 800; }
@@ -1091,11 +1118,19 @@
             <div class="features-grid">
                 <div class="support-card form-card">
                     <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
-                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وبعد الإرسال هتاخد كود فيه اسمك، تشوف بيه رد المطور.</p>
+                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وانت اللي تختار كود المتابعة بنفسك، تشوف بيه رد المطور.</p>
                     <form id="bugForm" autocomplete="off" novalidate>
                         <div class="form-row">
                             <label for="bugName">اسمك *</label>
                             <input id="bugName" type="text" maxlength="60" placeholder="مثال: عمر">
+                        </div>
+                        <div class="form-row">
+                            <label for="bugCodeInput">كود المتابعة</label>
+                            <div class="code-input">
+                                <span class="code-prefix">BFO-</span>
+                                <input id="bugCodeInput" type="text" maxlength="11" placeholder="اكتب اسمك هنا" spellcheck="false" autocomplete="off">
+                            </div>
+                            <span class="form-hint">«BFO-» مكتوبة جاهزة — اكتب بعدها أي اسم تحبه (عربي أو إنجليزي، الموقع يحوّله لحروف إنجليزي). ده الكود اللي هتتابع بيه بلاغك. لو سيبتها فاضية، الموقع يجيبلك كود لوحده.</span>
                         </div>
                         <div class="form-row">
                             <label for="bugText">وصف الخطأ *</label>
@@ -1300,6 +1335,7 @@
             const form = document.getElementById('bugForm');
             if (!form) return;
             const nameEl = document.getElementById('bugName');
+            const codeInputEl = document.getElementById('bugCodeInput');
             const textEl = document.getElementById('bugText');
             const contactEl = document.getElementById('bugContact');
             const shotsEl = document.getElementById('bugShots');
@@ -1322,14 +1358,18 @@
                 'ژ': 'J', 'ڤ': 'V', 'پ': 'P', 'گ': 'G'
             };
 
-            function latinName(name) {
+            function codeChars(raw) {
                 let out = '';
-                String(name || '').split('').forEach(function (ch) {
+                String(raw || '').split('').forEach(function (ch) {
                     const up = ch.toUpperCase();
                     if (/[A-Z0-9]/.test(up)) out += up;
                     else if (AR2LAT[ch]) out += AR2LAT[ch];
                 });
-                return out.replace(/[^A-Z0-9]/g, '').slice(0, 6);
+                return out.replace(/[^A-Z0-9]/g, '').slice(0, 11);
+            }
+
+            function latinName(name) {
+                return codeChars(name).slice(0, 6);
             }
 
             function makeCode(name) {
@@ -1342,6 +1382,19 @@
                 const latin = latinName(name);
                 if (!latin) return 'BFO-' + out;
                 return 'BFO-' + latin + out.slice(0, 2);
+            }
+
+            function typedCode(raw) {
+                let body = codeChars(raw);
+                if (body.length > 3 && body.indexOf('BFO') === 0) body = body.slice(3);
+                return body.slice(0, 8);
+            }
+
+            if (codeInputEl) {
+                codeInputEl.addEventListener('input', function () {
+                    const clean = codeChars(this.value);
+                    if (this.value !== clean) this.value = clean;
+                });
             }
 
             function showDone(code) {
@@ -1497,12 +1550,18 @@
                 }
 
                 const name = (nameEl.value || '').trim();
+                const typed = typedCode(codeInputEl ? codeInputEl.value : '');
                 const problem = (textEl.value || '').trim();
                 const contact = (contactEl.value || '').trim();
 
                 if (!name) {
                     say('اكتب اسمك الأول.', false);
                     nameEl.focus();
+                    return;
+                }
+                if (typed && typed.length < 3) {
+                    say('كود المتابعة لازم 3 حروف على الأقل بعد BFO- (حروف إنجليزي أو أرقام).', false);
+                    codeInputEl.focus();
                     return;
                 }
                 if (problem.length < 5) {
@@ -1512,7 +1571,7 @@
                 }
 
                 const toSend = shots.slice();
-                const code = makeCode(name);
+                const code = typed ? 'BFO-' + typed : makeCode(name);
                 doneBox.className = 'done-box';
                 status.textContent = '';
                 status.className = 'form-status';

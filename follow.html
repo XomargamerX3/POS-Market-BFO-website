@@ -236,11 +236,11 @@
         <div class="card">
             <h1>🔎 متابعة البلاغ</h1>
             <p class="sub">
-                اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR52</b>) وشوف رد المطور عليه.
+                اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR</b>) وشوف رد المطور عليه.
                 الكود بيتبعت جوه البلاغ نفسه كمان.
             </p>
             <form id="followForm" autocomplete="off" novalidate>
-                <input id="code" type="text" maxlength="14" placeholder="BFO-OMAR52" aria-label="كود البلاغ" spellcheck="false">
+                <input id="code" type="text" maxlength="14" placeholder="BFO-OMAR" aria-label="كود البلاغ" spellcheck="false">
                 <button type="submit" id="go">اعرض الرد</button>
             </form>
             <div id="result"></div>
@@ -300,7 +300,7 @@
             const s = (raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
             if (!s) return null;
             const rest = s.indexOf('BFO') === 0 ? s.slice(3) : s;
-            if (rest.length < 4 || rest.length > 8) return null;
+            if (rest.length < 3 || rest.length > 8) return null;
             return 'BFO-' + rest;
         }
 
@@ -387,7 +387,7 @@
 
         function parseAddition(j) {
             const body = j.message.slice(ADD_PREFIX.length)
-                .replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
+                .replace(/BFO[\s\-_]*[A-Z0-9]{3,8}/i, ' ')
                 .replace(/^[\s:\-–—]+/, '');
             const cut = body.indexOf('📷');
             const text = (cut >= 0 ? body.slice(0, cut) : body).replace(/—[^\n]*$/, '').trim();
@@ -416,7 +416,8 @@
                     return;
                 }
                 if (!hasCode(j.message, code)) return;
-                const stripped = j.message.replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
+                const stripped = j.message.replace(/BFO[\s\-_]*[A-Z0-9]{3,8}/i, ' ')
+                    .replace(/\s{2,}/g, ' ')
                     .replace(/^[\s:\-–—]+/, '').trim();
                 const st = statusOf(stripped);
                 items.push({ side: 'dev', text: st.body, photos: [], status: st.status, time: t, date: dateOf(t) });
@@ -461,7 +462,7 @@
             } else if (thread) {
                 html += '<div class="report"><h3>📄 إضافاتك على البلاغ</h3>' + thread + '</div>';
             }
-            html += '<p class="note-box">الكود بيبدأ بـ <b>BFO</b> وبعده اسمك بحروف إنجليزي وحرفين زيادة — زي <b>BFO-OMAR52</b>. لو ضاع منك، ' +
+            html += '<p class="note-box">الكود بيبدأ بـ <b>BFO</b> وبعده الاسم اللي انت كتبته وقت الإرسال — زي <b>BFO-OMAR</b>. لو ضاع منك، ' +
                     '<a href="index.html#support">ابعت بلاغ جديد</a> وهتاخد كود جديد.</p>';
             result.innerHTML = html;
         }
@@ -469,7 +470,7 @@
         function check() {
             const code = norm(input.value);
             if (!code) {
-                result.innerHTML = '<p class="empty">الكود مش شكله صح — اكتبه زي BFO-OMAR52.</p>';
+                result.innerHTML = '<p class="empty">الكود مش شكله صح — اكتبه زي BFO-OMAR.</p>';
                 input.focus();
                 return;
             }
