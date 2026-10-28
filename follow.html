@@ -440,11 +440,27 @@
             try { localStorage.setItem('bfo_lock_' + code, lock.salt + ':' + lock.hash); } catch (e) {}
         }
 
+        function accountLock() {
+            try {
+                const a = JSON.parse(localStorage.getItem('bfo_account') || 'null');
+                if (!a || !a.user || !a.salt || !a.hash) return null;
+                if (localStorage.getItem('bfo_session') !== a.user) return null;
+                return { user: a.user, salt: a.salt, hash: a.hash };
+            } catch (e) { return null; }
+        }
+
         function applyGate(code, report) {
             const fromReport = report ? lockOf(report.message) : null;
             if (fromReport) rememberLock(code, fromReport);
             const lock = fromReport || rememberedLock(code);
-            const loggedIn = isUnlocked(code);
+            let loggedIn = isUnlocked(code);
+            if (lock && !loggedIn) {
+                const acct = accountLock();
+                if (acct && acct.salt === lock.salt && acct.hash === lock.hash) {
+                    try { localStorage.setItem(unlockKey(code), '1'); } catch (e) {}
+                    loggedIn = true;
+                }
+            }
             ownerBox.hidden = loggedIn;
             const open = !lock || loggedIn;
             addBox.hidden = !open;
