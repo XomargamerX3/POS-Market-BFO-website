@@ -248,7 +248,7 @@
             });
         }
 
-        function findReport(code) {
+        function getInbox() {
             return fetch(INBOX + '/json?poll=1&since=all', {
                 headers: { 'Accept': 'application/x-ndjson' },
                 cache: 'no-store'
@@ -256,15 +256,53 @@
                 if (!r.ok) throw r.status;
                 return r.text();
             }).then(function (txt) {
-                let found = null;
+                const rows = [];
                 txt.split('\n').forEach(function (line) {
                     if (!line.trim()) return;
                     let j;
                     try { j = JSON.parse(line); } catch (e) { return; }
-                    if (j.event === 'message' && j.message && j.message.toUpperCase().indexOf(code) >= 0) found = j;
+                    if (j.event === 'message' && j.message) rows.push(j);
                 });
-                return found;
+                return rows;
             }).catch(function () { return null; });
+        }
+
+        function hasCode(msg, code) {
+            return msg.toUpperCase().replace(/[^A-Z0-9]/g, '').indexOf(code.replace('-', '')) >= 0;
+        }
+
+        function findReport(rows, code) {
+            let found = null;
+            rows.forEach(function (j) {
+                if (j.message.indexOf('بلاغ جديد من موقع') === 0 && hasCode(j.message, code)) found = j;
+            });
+            return found;
+        }
+
+        function statusOf(body) {
+            const m = body.match(/^(fixed|working|note)\s*[:\-–—]?\s*/i);
+            if (m) return { status: m[1].toLowerCase(), body: body.slice(m[0].length) };
+            if (/(اتصلح|إصلاح|اصلاح|تصليح)/.test(body)) return { status: 'fixed', body: body };
+            if (/(جاري|بشتغل|قيد العمل|لسه شغالين)/.test(body)) return { status: 'working', body: body };
+            return { status: 'note', body: body };
+        }
+
+        function findInboxReply(rows, code) {
+            let found = null;
+            rows.forEach(function (j) {
+                if (j.message.indexOf('بلاغ جديد من موقع') === 0) return;
+                if (j.message.indexOf('You received a file') === 0) return;
+                if (!hasCode(j.message, code)) return;
+                const stripped = j.message.replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
+                    .replace(/^[\s:\-–—]+/, '').trim();
+                const st = statusOf(stripped);
+                found = {
+                    status: st.status,
+                    reply: st.body,
+                    date: new Date((j.time || 0) * 1000).toISOString().slice(0, 10)
+                };
+            });
+            return found;
         }
 
         function render(entry, repliesOk, report) {
@@ -314,10 +352,15 @@
                 replies = data;
                 repliesOk = true;
             }).catch(function () {}).then(function () {
-                return findReport(code);
-            }).then(function (report) {
+                return getInbox();
+            }).then(function (rows) {
                 let entry = null;
-                if (replies) {
+                let report = null;
+                if (rows) {
+                    report = findReport(rows, code);
+                    entry = findInboxReply(rows, code);
+                }
+                if (!entry && replies) {
                     if (replies[code]) entry = replies[code];
                     else {
                         const keys = Object.keys(replies);
@@ -326,7 +369,7 @@
                         }
                     }
                 }
-                render(entry, repliesOk, report);
+                render(entry, repliesOk || !!entry, report);
             }).catch(function () {
                 result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';
             }).then(function () {
