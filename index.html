@@ -430,12 +430,145 @@
             font-size: 14px;
         }
 
+        /* ====================== المتطلبات ====================== */
+        .req-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 26px;
+            box-shadow: var(--shadow);
+        }
+
+        .req-card h3 {
+            font-size: 19px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .req-card h3 .ico { font-size: 26px; }
+
+        .req-card ul { list-style: none; }
+
+        .req-card li {
+            font-size: 15px;
+            color: var(--gray);
+            padding: 7px 0;
+            border-bottom: 1px dashed #e6e8ef;
+            line-height: 1.6;
+        }
+
+        .req-card li:last-child { border-bottom: none; }
+
+        .req-card li b { color: var(--dark); font-weight: 700; }
+
+        .note {
+            background: #fff8e6;
+            border-right: 5px solid var(--warning);
+            border-radius: 12px;
+            padding: 18px 22px;
+            max-width: 1000px;
+            margin: 30px auto 0;
+            font-size: 15px;
+            color: #6b5200;
+            text-align: right;
+        }
+
+        /* ====================== الدعم / الإبلاغ ====================== */
+        .support-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            text-align: right;
+        }
+
+        .support-card h3 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .support-card p {
+            color: var(--gray);
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+
+        .chip {
+            display: inline-block;
+            background: #eef1ff;
+            color: var(--primary);
+            border-radius: 50px;
+            padding: 4px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            margin: 0 0 14px 6px;
+        }
+
+        .btn-ghost {
+            background: var(--white);
+            color: var(--dark);
+            border: 2px solid #dfe3ec;
+            border-radius: 50px;
+            padding: 11px 26px;
+            font-size: 15px;
+            font-weight: 700;
+            display: inline-block;
+            transition: var(--transition);
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .guide-banner {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            border-radius: var(--radius);
+            padding: 30px 34px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow);
+        }
+
+        .guide-banner h3 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+        .guide-banner p { opacity: .9; font-size: 15px; max-width: 620px; }
+
+        .btn-onblue {
+            background: var(--white);
+            color: var(--primary);
+            border-radius: 50px;
+            padding: 13px 30px;
+            font-weight: 800;
+            font-size: 16px;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .btn-onblue:hover { transform: scale(1.05); }
+
         /* ====================== الاستجابة ====================== */
         @media (max-width: 900px) {
             .hero {
                 grid-template-columns: 1fr;
                 text-align: center;
                 padding-top: 120px;
+            }
+
+            .guide-banner {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
             }
 
             .hero-content p {
@@ -514,9 +647,11 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="#home">الرئيسية</a></li>
                 <li><a href="#features">المميزات</a></li>
-                <li><a href="#download">التحميل</a></li>
+                <li><a href="#requirements">المتطلبات</a></li>
+                <li><a href="guide.html">📖 دليل الاستخدام</a></li>
+                <li><a href="#support">🐞 الإبلاغ عن خطأ</a></li>
                 <li><a href="#about">عن المطور</a></li>
-                <li><a href="#download" class="btn-download-nav">📥 تحميل الآن</a></li>
+                <li><a href="#download" class="btn-download-nav">📥 احصل على النسخة</a></li>
             </ul>
         </div>
     </nav>
@@ -530,14 +665,15 @@
                 مصمم خصيصاً ليلبي احتياجات المتاجر الصغيرة والمتوسطة.
             </p>
             <div class="hero-buttons">
-                <a href="#download" class="btn-primary">📥 تحميل التطبيق</a>
-                <a href="#features" class="btn-secondary">✨ اكتشف المميزات</a>
+                <a href="#download" class="btn-primary">📥 احصل على النسخة</a>
+                <a href="guide.html" class="btn-secondary">📖 دليل الاستخدام</a>
+                <a href="#features" class="btn-ghost">✨ اكتشف المميزات</a>
             </div>
         </div>
         <div class="hero-image">
             <div class="mockup">
                 <div class="mockup-icon">💻</div>
-                <h3>POS Market BFO v1.0</h3>
+                <h3>POS Market BFO</h3>
                 <div class="badge">✅ جاهز للاستخدام</div>
                 <p style="margin-top:16px; color:var(--gray); font-size:14px;">
                     نظام إدارة مبيعات متكامل<br>
@@ -557,56 +693,185 @@
                 <div class="feature-card">
                     <div class="feature-icon">📦</div>
                     <h3>إدارة المخزون</h3>
-                    <p>إضافة وتعديل وحذف المنتجات مع إمكانية تفعيل تتبع الكمية أو تعطيله</p>
+                    <p>إضافة وتعديل وحذف المنتجات، تتبّع الكمية أو تعطيلها لكل صنف، وتنبيه بصري بالألوان عند نقص أو نفاد البضاعة.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🛒</div>
-                    <h3>نظام البيع</h3>
-                    <p>سلة منفصلة للتجزئة والجملة مع إمكانية التبديل السريع بين الوضعين</p>
+                    <h3>سلّتان: تجزئة وجملة</h3>
+                    <p>سلّة للتجزئة وأخرى للجملة بثمن مختلف، مع تبديل سريع بين الوضعين وزيادة ونقص الكمية بضغطة.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🏷️</div>
                     <h3>التصنيفات</h3>
-                    <p>تنظيم المنتجات في تصنيفات وعرضها حسب التصنيف المطلوب</p>
+                    <p>نظّم أصنافك في تصنيفات ملوّنة، واعرض أصناف التصنيف المطلوب أو صفّ المخزون حسبها.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>الإحصائيات</h3>
-                    <p>متابعة مبيعات اليوم والأرباح مع تقارير مفصلة للتجزئة والجملة</p>
+                    <div class="feature-icon">⚖️</div>
+                    <h3>البيع بالوزن</h3>
+                    <p>أدخل الوزن بالغرام فيظهر الفاتورة بالكيلوغرام، مع خانة «بسعر» تحوّل المال إلى وزن، وخانة «عدد» لتفريق البيض.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🔖</div>
                     <h3>الباركود</h3>
-                    <p>إنشاء وطباعة باركود للمنتجات بحجم 3×3 سم مع إمكانية حفظ كصورة أو PDF</p>
+                    <p>امسح الكود بالماسح ويضاف الصنف فوراً، وأنشئ ملصقات باركود بمقاسات جاهزة أو مقاس بالمليمتر مع معاينة قبل الطباعة.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🖨️</div>
+                    <h3>الطباعة</h3>
+                    <p>اطبع على أي طابعة في ويندوز أو طابعة حرارية 58/80 مم بعدة نسخ، أو احفظ الفاتورة والتقرير PDF بمقاس A4.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>العملاء والديون</h3>
+                    <p>سجّل العملاء، بِع على الدين باسم العميل، وتابع كشف مشترياته وديونه بضغطة.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💵</div>
+                    <h3>الدفع المسبق</h3>
+                    <p>كشوف التجّار والموردين مع أصنافهم في التجزئة والجملة، وادفع المقدّم من الشاشة الرئيسية فيُخصم تلقائياً.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>المرتجعات</h3>
+                    <p>استردّ صنفًا من فاتورة سابقة فيعود للمخزون ويُطبع مرتجع له.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>الإحصائيات</h3>
+                    <p>مبيعات اليوم أمامك أول بأول: عدد الفواتير، التجزئة، الجملة، والأرباح — مع جدول الأصناف المبيعة وفرز الأعمدة بالنقر على رأس الجدول.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>رأس المال</h3>
+                    <p>كشف قيمة بضاعتك: إجمالي رأس المال وأسعار الشراء والبيع في التجزئة والجملة، مع فلترة حسب التصنيف وحفظ PDF.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🧮</div>
+                    <h3>العداد</h3>
+                    <p>عدّاد إجمالي في لوحة التحكم: مجموع الأصناف المبيعة ومجموع الأرباح منذ أول يوم، مع وقت آخر تحديث.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3>حساب الباقي</h3>
+                    <p>أدخل المبلغ المستلم واحسب الباقي للعميل بضغطة F2 قبل إتمام البيع.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>ثلاث لغات</h3>
+                    <p>عربية من اليمين لليسار، إنجليزية وفرنسية — التبديل فوري من داخل البرنامج بلا إعادة تشغيل.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">💾</div>
                     <h3>النسخ الاحتياطي</h3>
-                    <p>حفظ نسخة احتياطية من البيانات واستعادتها عند الحاجة</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3>إدارة العملاء</h3>
-                    <p>تسجيل العملاء ومتابعة مشترياتهم وديونهم بكل سهولة</p>
+                    <p>احفظ نسخة من كل بياناتك واستعدها عند الحاجة، والبيانات ملفات JSON بجانب البرنامج بلا قاعدة بيانات.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🔒</div>
-                    <h3>نظام الحماية</h3>
-                    <p>التطبيق مربوط بجهاز واحد فقط، لا يمكن نسخه أو نقله</p>
+                    <h3>ترخيص مرتبط بالجهاز</h3>
+                    <p>النسخة تُفعَّل مرة واحدة على جهاز واحد ولا تعمل منسوخة على جهاز آخر.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">🌐</div>
-                    <h3>دعم اللغات</h3>
-                    <p>يدعم ثلاث لغات: العربية، الإنجليزية، والفرنسية</p>
+                    <div class="feature-icon">📡</div>
+                    <h3>تحديث تلقائي</h3>
+                    <p>يفحص البرنامج عن نسخة جديدة عند التشغيل ويثبّتها تلقائياً، وبلا إنترنت يعمل بصمت ولا يتعطل.</p>
                 </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🖥️</div>
+                    <h3>واجهة تتكيّف مع شاشتك</h3>
+                    <p>شاشة كاملة على الشاشات الكبيرة، وواجهة مصغّرة تلقائياً على الشاشات الصغيرة مع مفتاح F8 للتبديل.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== دليل الاستخدام + المتطلبات ==================== -->
+    <section class="features" id="requirements" style="background:var(--bg);">
+        <div class="features-container">
+            <div class="guide-banner">
+                <div>
+                    <h3>📖 دليل الاستخدام الكامل</h3>
+                    <p>كل شاشة وكل زر وكل اختصار لوحة المفاتيح مشروحة خطوة بخطوة: البيع بالتجزئة والجملة وبالوزن، المرتجعات، الديون، الدفع المسبق، الباركود، التقارير، النسخ الاحتياطي، وحل المشاكل الشائعة.</p>
+                </div>
+                <a href="guide.html" class="btn-onblue">افتح الدليل ←</a>
+            </div>
+
+            <h2 class="section-title">🖥️ متطلبات التشغيل</h2>
+            <p class="section-subtitle">ما يحتاجه البرنامج ليعمل عندك — بدون إنترنت وبدون قاعدة بيانات</p>
+
+            <div class="features-grid">
+                <div class="req-card">
+                    <h3><span class="ico">💻</span> النظام</h3>
+                    <ul>
+                        <li><b>ويندوز 10 أو 11</b> — نسخة <b>64-bit</b> فقط</li>
+                        <li><b>.NET Framework 4.x</b> — مثبّت مع ويندوز ولا يحتاج تنزيل</li>
+                        <li>لا يحتاج صلاحيات مدير ولا تثبيت setup</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">📁</span> مكان البرنامج</h3>
+                    <ul>
+                        <li>فكّ الضغط في <b>مجلد قابل للكتابة</b> مثل سطح المكتب أو D:\</li>
+                        <li><b>لا تضعه في Program Files</b> — البيانات تُحفظ بجانبه</li>
+                        <li>الملفات: products.json ، sales_data.json ، settings.json …</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">🖥️</span> الشاشة</h3>
+                    <ul>
+                        <li>أفضل عرض: <b>1920×1080</b> أو أعلى</li>
+                        <li>أقل دقة مدعومة: <b>1366×768</b> (تُصغَّر الواجهة تلقائياً)</li>
+                        <li><b>F8</b> للتبديل بين ملء الشاشة ونافذة عادية</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">🖨️</span> الطابعة (اختياري)</h3>
+                    <ul>
+                        <li>أي طابعة معرّفة في ويندوز للفواتير</li>
+                        <li>طابعة <b>حرارية 58 أو 80 مم</b> لملصقات الباركود</li>
+                        <li>أو احفظ PDF بدون أي طابعة</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">🔍</span> ماسح الباركود (اختياري)</h3>
+                    <ul>
+                        <li>ماسح <b>USB</b> يعمل كأنه لوحة مفاتيح</li>
+                        <li>بدون ماسح: اكتب الكود يدوياً واضغط Enter</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">🌐</span> الإنترنت</h3>
+                    <ul>
+                        <li><b>غير مطلوب</b> للبيع والمحاسبة — البرنامج يعمل بلا شبكة</li>
+                        <li>مطلوب فقط لفحص <b>التحديث التلقائي</b> عند التشغيل</li>
+                        <li>لا يوجد ميزان إلكتروني موصول — الوزن يُكتب يدوياً</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="note">
+                💡 <b>مهم:</b> البرنامج يعمل على <b>جهاز واحد</b> — الترخيص مرتبط بجهازك ولا يمكن نقل النسخة لجهاز آخر.
             </div>
         </div>
     </section>
@@ -615,20 +880,20 @@
     <section class="stats">
         <div class="stats-container">
             <div class="stat-item">
-                <h3 id="statDownloads">0</h3>
-                <p>📥 عدد التحميلات</p>
+                <h3>18</h3>
+                <p>⭐ ميزة داخل البرنامج</p>
             </div>
             <div class="stat-item">
-                <h3>9+</h3>
-                <p>⭐ مميزات متكاملة</p>
+                <h3>9</h3>
+                <p>🗂️ تبويبات في لوحة التحكم</p>
             </div>
             <div class="stat-item">
                 <h3>3</h3>
                 <p>🌐 لغات مدعومة</p>
             </div>
             <div class="stat-item">
-                <h3>v1.0</h3>
-                <p>🚀 أحدث إصدار</p>
+                <h3 id="statVersion">—</h3>
+                <p>🚀 أحدث إصدار منشور</p>
             </div>
         </div>
     </section>
@@ -636,29 +901,87 @@
     <!-- ==================== التحميل ==================== -->
     <section class="download-section" id="download">
         <div class="download-card">
-            <h2>📥 تحميل التطبيق</h2>
+            <h2>📥 الحصول على النسخة</h2>
             <p>
-                قم بتحميل أحدث إصدار من POS Market BFO وابدأ في إدارة متجرك بكفاءة.
-                التطبيق يعمل على نظام Windows 10/11.
+                POS Market BFO برنامج تجاري يُسلَّم مباشرة من المطور مع ترخيص مرتبط بجهازك.
+                تواصل من إحدى الطرق أسفله لتحصل على النسخة الأخيرة وأسعارها.
             </p>
 
-            <a href="https://github.com/XomargamerX3/POS-Market-BFO-website/releases/download/POS.Market.BFO/POS.Market.BFO.exe" class="btn-primary" style="font-size:22px; padding:16px 50px;">
-                ⬇️ تحميل POS Market BFO Setup
-            </a>
+            <div class="hero-buttons" style="justify-content:center; margin-bottom:8px;">
+                <a href="#support" class="btn-primary" style="font-size:20px; padding:14px 34px;">📩 تواصل مع المطور</a>
+                <a href="guide.html" class="btn-secondary" style="font-size:20px; padding:14px 34px;">📖 جرّب الدليل أولاً</a>
+            </div>
 
             <div class="download-info">
                 <div class="download-info-item">
-                    <div class="number" id="file-size">جاري التحميل...</div>
+                    <div class="number" id="latest-version">—</div>
+                    <div class="label">أحدث إصدار</div>
+                </div>
+                <div class="download-info-item">
+                    <div class="number" id="file-size">—</div>
                     <div class="label">حجم الملف</div>
                 </div>
                 <div class="download-info-item">
-                    <div class="number">v1.0</div>
-                    <div class="label">الإصدار</div>
-                </div>
-                <div class="download-info-item">
-                    <div class="number">Windows</div>
+                    <div class="number">Windows 64-bit</div>
                     <div class="label">نظام التشغيل</div>
                 </div>
+            </div>
+            <p id="dl-note" style="font-size:13px; margin-top:18px; margin-bottom:0;">
+                ℹ️ ملف التنزيل المباشر يظهر هنا تلقائياً إذا نُشرت نسخة على GitHub Releases.
+            </p>
+            <div id="dl-direct" style="margin-top:16px; display:none;">
+                <a id="dl-link" href="#" class="btn-primary" style="font-size:20px; padding:14px 34px;">⬇️ تحميل POS Market BFO</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== الدعم والإبلاغ عن خطأ ==================== -->
+    <section class="features" id="support">
+        <div class="features-container">
+            <h2 class="section-title">🐞 الإبلاغ عن خطأ / الدعم</h2>
+            <p class="section-subtitle">وجدت مشكلة؟ أخبرنا بها بالتفصيل ونرجع لك بالجواب</p>
+
+            <div class="features-grid">
+                <div class="support-card">
+                    <h3>🐞 بلّغ عن خطأ على GitHub</h3>
+                    <p>أفضل طريقة: اكتب وصف المشكلة في Issues، واجتمع كل مرة في مكان واحد مع الحل.</p>
+                    <span class="chip">الإصدار</span>
+                    <span class="chip">اللغة</span>
+                    <span class="chip">دقة الشاشة</span>
+                    <span class="chip">الخطوات</span>
+                    <br>
+                    <a class="btn-primary" style="font-size:16px; padding:12px 26px;"
+                       href="https://github.com/XomargamerX3/POS-Market-BFO-website/issues/new?template=bug_report.md" target="_blank">
+                        ✍️ فتح بلاغ خطأ
+                    </a>
+                </div>
+
+                <div class="support-card">
+                    <h3>🗨️ أسئلة واقتراحات</h3>
+                    <p>ما فهمتش طريقة استعمال ميزة؟ اقترح إضافة؟ الرسائل هنا منظمة حسب الموضوع.</p>
+                    <a class="btn-ghost" style="display:inline-block;"
+                       href="https://github.com/XomargamerX3/POS-Market-BFO-website/issues/new" target="_blank">
+                        ➕ موضوع جديد
+                    </a>
+                </div>
+
+                <div class="support-card">
+                    <h3>📱 تواصل مباشر</h3>
+                    <p>لترخيص جديد أو سؤال تجاري، كل القنوات الرسمية للمطور هنا.</p>
+                    <a href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank"
+                       style="background:#4267B2; color:white; padding:9px 20px; border-radius:50px; font-size:14px; font-weight:600;">📘 Facebook</a>
+                    <a href="https://www.youtube.com/@xomargamerx978" target="_blank"
+                       style="background:#FF0000; color:white; padding:9px 20px; border-radius:50px; font-size:14px; font-weight:600;">▶️ YouTube</a>
+                    <a href="https://discord.com/channels/970119086493274132/970119086493274135" target="_blank"
+                       style="background:#5865F2; color:white; padding:9px 20px; border-radius:50px; font-size:14px; font-weight:600;">💬 Discord</a>
+                    <a href="https://xomargamerx.kesug.com/" target="_blank"
+                       style="background:var(--primary); color:white; padding:9px 20px; border-radius:50px; font-size:14px; font-weight:600;">🌐 الموقع الشخصي</a>
+                </div>
+            </div>
+
+            <div class="note">
+                🔎 <b>قبل ما تبلّغ:</b> جرّب <b>🔄 تحديث الكل</b> في القائمة الجانبية، وتحقّق من مكان المجلد (يجب أن يكون قابل للكتابة)،
+                ثم انسخ <b>رقم الإصدار</b> الظاهر في ⚙ عام → وأرفق صورة للخطأ إن أمكن. هذا يختصر وقت الحل كثيراً.
             </div>
         </div>
     </section>
@@ -696,10 +1019,14 @@
                 <h4>روابط سريعة</h4>
                 <a href="#home">الرئيسية</a><br>
                 <a href="#features">المميزات</a><br>
-                <a href="#download">التحميل</a>
+                <a href="#requirements">متطلبات التشغيل</a><br>
+                <a href="guide.html">📖 دليل الاستخدام</a><br>
+                <a href="#download">الحصول على النسخة</a>
             </div>
             <div>
                 <h4>الدعم</h4>
+                <a href="#support">🐞 الإبلاغ عن خطأ</a><br>
+                <a href="https://github.com/XomargamerX3/POS-Market-BFO-website/issues" target="_blank">🗂️ كل البلاغات</a><br>
                 <a href="https://www.youtube.com/@xomargamerx978" target="_blank">▶️ YouTube</a><br>
                 <a href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank">📘 Facebook</a><br>
                 <a href="https://discord.com/channels/970119086493274132/970119086493274135" target="_blank">💬 Discord</a>
@@ -707,11 +1034,11 @@
             <div>
                 <h4>المطور</h4>
                 <p>عمر بن مامو</p>
-                <p style="font-size:12px; color:#666;">© 2024 جميع الحقوق محفوظة</p>
+                <p style="font-size:12px; color:#666;">© 2026 جميع الحقوق محفوظة</p>
             </div>
         </div>
         <div class="footer-bottom">
-            تم التطوير بواسطة ❤️ عمر بن مامو | POS Market BFO v1.0
+            تم التطوير بواسطة ❤️ عمر بن مامو | POS Market BFO
         </div>
     </footer>
 
@@ -739,32 +1066,46 @@
             }
         });
 
-        // ===== إحصائيات التحميل (تخزين محلي) =====
-        let downloads = localStorage.getItem('pos_downloads');
-        if (!downloads) {
-            downloads = 0;
-        } else {
-            downloads = parseInt(downloads);
+        // ===== آخر إصدار منشور على GitHub Releases =====
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
         }
 
-        // عرض عدد التحميلات
-        document.getElementById('statDownloads').textContent = downloads;
+        function fmtSize(bytes) {
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+            if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+            return bytes + ' B';
+        }
 
-        // عند الضغط على زر التحميل
-        document.querySelector('.download-card .btn-primary').addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // زيادة عدد التحميلات
-            downloads = downloads + 1;
-            localStorage.setItem('pos_downloads', downloads);
-            document.getElementById('statDownloads').textContent = downloads;
-            
-            // عرض رسالة
-            alert('✅ تم تحميل التطبيق بنجاح!\nسيبدأ التحميل قريباً...');
-            
-            // رابط التحميل الفعلي (ضع رابط ملف SETUP هنا)
-            window.location.href = 'POS Market BFO.exe';
-        });
+        fetch('https://api.github.com/repos/XomargamerX3/POS-Market-BFO-website/releases/latest',
+              { headers: { 'Accept': 'application/vnd.github+json' } })
+            .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function (rel) {
+                const tag = (rel.tag_name || '').replace(/^v/i, '');
+                setText('statVersion', tag || '—');
+                setText('latest-version', tag ? 'v' + tag : '—');
+                const assets = rel.assets || [];
+                let exe = null;
+                for (let i = 0; i < assets.length; i++) {
+                    if (/\.exe$/i.test(assets[i].name)) { exe = assets[i]; break; }
+                }
+                if (exe) {
+                    setText('file-size', fmtSize(exe.size));
+                    const link = document.getElementById('dl-link');
+                    link.href = exe.browser_download_url;
+                    link.textContent = '⬇️ تحميل ' + exe.name;
+                    document.getElementById('dl-direct').style.display = 'block';
+                    setText('dl-note', '✅ ملف رسمي منشور على GitHub Releases.');
+                } else {
+                    setText('file-size', 'يُسلَّم من المطور');
+                }
+            })
+            .catch(function () {
+                setText('statVersion', '—');
+                setText('latest-version', 'عند الطلب');
+                setText('file-size', 'يُسلَّم من المطور');
+            });
 
         // ===== تمرير سلس =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

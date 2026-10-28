@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل الاستخدام - POS Market BFO</title>
+    <meta name="description" content="دليل استخدام نظام نقاط البيع POS Market BFO: البيع بالتجزئة والجملة وبالوزن، المخزون، الباركود، الفواتير، الديون، الدفع المسبق، التقارير، النسخ الاحتياطي وحل المشاكل.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --bg: #f0f2f5;
+            --shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            line-height: 1.8;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        .navbar {
+            background: var(--white);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 14px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 800; color: var(--primary); white-space: nowrap; }
+        .logo span { color: var(--dark); }
+        .logo-icon { font-size: 28px; }
+
+        .nav-links { display: flex; gap: 22px; list-style: none; align-items: center; }
+        .nav-links a { font-weight: 600; font-size: 15px; color: var(--dark); transition: var(--transition); }
+        .nav-links a:hover { color: var(--primary); }
+
+        .btn-nav {
+            background: var(--primary);
+            color: var(--white) !important;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+        }
+
+        .btn-nav:hover { background: var(--primary-dark); color: var(--white) !important; }
+
+        .page-head {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 130px 20px 60px;
+            text-align: center;
+        }
+
+        .page-head h1 { font-size: 42px; font-weight: 800; margin-bottom: 12px; }
+        .page-head p { font-size: 18px; opacity: .92; max-width: 820px; margin: 0 auto; }
+
+        .layout {
+            max-width: 1240px;
+            margin: -34px auto 60px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 288px 1fr;
+            gap: 26px;
+            align-items: start;
+        }
+
+        .toc {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            position: sticky;
+            top: 88px;
+            max-height: calc(100vh - 110px);
+            overflow: auto;
+        }
+
+        .toc h4 { font-size: 16px; font-weight: 800; margin-bottom: 10px; color: var(--primary); }
+
+        .toc ol { list-style: none; counter-reset: n; }
+
+        .toc li { counter-increment: n; margin-bottom: 2px; }
+
+        .toc a {
+            display: block;
+            font-size: 14px;
+            color: var(--gray);
+            padding: 5px 8px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .toc a::before { content: counter(n) ". "; color: var(--primary); font-weight: 700; }
+        .toc a:hover { background: #eef1ff; color: var(--primary); }
+
+        .doc {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 34px 38px 44px;
+        }
+
+        .doc section { padding-bottom: 26px; margin-bottom: 26px; border-bottom: 1px solid #eceef3; scroll-margin-top: 90px; }
+        .doc section:last-child { border-bottom: none; }
+
+        .doc h2 {
+            font-size: 27px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .doc h3 {
+            font-size: 19px;
+            font-weight: 700;
+            margin: 22px 0 8px;
+            color: var(--dark);
+        }
+
+        .doc h4 { font-size: 16px; font-weight: 700; margin: 14px 0 6px; color: var(--secondary); }
+        .doc p { margin-bottom: 10px; font-size: 16px; }
+        .doc ul, .doc ol { margin: 0 26px 12px 0; padding-right: 8px; }
+        .doc li { margin-bottom: 6px; font-size: 15.5px; }
+        .doc ul li { list-style: disc; }
+        .doc ol li { list-style: decimal; }
+
+        .lead { color: var(--gray); font-size: 16px; margin-bottom: 18px; }
+
+        kbd, .key {
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 7px;
+            padding: 2px 10px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .b {
+            background: #eef1ff;
+            color: var(--primary);
+            border-radius: 7px;
+            padding: 1px 9px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 15px; }
+
+        th, td { border: 1px solid #e3e6ee; padding: 9px 12px; text-align: right; vertical-align: top; }
+
+        th { background: #f5f6fb; font-weight: 800; color: var(--dark); }
+
+        tr:nth-child(even) td { background: #fbfbfe; }
+
+        .tip, .warn, .stop {
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 15px;
+        }
+
+        .tip { background: #e9f8f1; border-right: 5px solid #20c997; color: #0f5132; }
+        .warn { background: #fff8e6; border-right: 5px solid var(--warning); color: #6b5200; }
+        .stop { background: #fdeef4; border-right: 5px solid var(--danger); color: #831843; }
+
+        .steps { counter-reset: s; list-style: none; margin-right: 0 !important; padding: 0 !important; }
+
+        .steps li {
+            counter-increment: s;
+            position: relative;
+            padding-right: 44px;
+            margin-bottom: 10px;
+        }
+
+        .steps li::before {
+            content: counter(s);
+            position: absolute;
+            right: 0;
+            top: 2px;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .swatch { display: inline-block; width: 15px; height: 15px; border-radius: 4px; border: 1px solid #ccd; vertical-align: -2px; margin-left: 6px; }
+
+        .foot-cta {
+            max-width: 1240px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius);
+            color: var(--white);
+            padding: 30px 34px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .foot-cta h3 { font-size: 22px; font-weight: 800; }
+        .foot-cta p { opacity: .9; font-size: 15px; }
+
+        .btn-white {
+            background: var(--white);
+            color: var(--primary);
+            border-radius: 50px;
+            padding: 12px 26px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .footer { background: var(--dark); color: #a0a0a0; padding: 26px 20px; text-align: center; font-size: 14px; }
+        .footer a { color: var(--white); font-weight: 600; }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            .toc { position: static; max-height: none; }
+            .page-head h1 { font-size: 30px; }
+            .doc { padding: 24px 20px 32px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><span class="logo-icon">🛒</span> POS<span>Market</span> <span style="font-weight:400;font-size:15px;color:var(--gray);">| دليل الاستخدام</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">🏠 الرئيسية</a></li>
+                <li><a href="index.html#features">المميزات</a></li>
+                <li><a href="index.html#requirements">المتطلبات</a></li>
+                <li><a href="index.html#support">🐞 الإبلاغ عن خطأ</a></li>
+                <li><a href="index.html#download" class="btn-nav">📥 احصل على النسخة</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-head">
+        <h1>📘 دليل استخدام النظام</h1>
+        <p>كل شاشة، كل زر، كل اختصار في POS Market BFO مشروح خطوة بخطوة — من فتح الصندوق حتى الطباعة والتقارير وحل المشاكل.</p>
+    </header>
+
+    <div class="layout">
+        <aside class="toc">
+            <h4>محتويات الدليل</h4>
+            <ol>
+                <li><a href="#start">قبل البداية: المتطلبات والتثبيت</a></li>
+                <li><a href="#tour">جولة في الشاشة الرئيسية</a></li>
+                <li><a href="#keys">اختصارات لوحة المفاتيح</a></li>
+                <li><a href="#sale">البيع بالباركود (تجزئة)</a></li>
+                <li><a href="#nocode">الأصناف بدون باركود: وزن وعدد</a></li>
+                <li><a href="#scale">نافذة ⚖️ الميزان</a></li>
+                <li><a href="#wholesale">البيع بالجملة</a></li>
+                <li><a href="#pay">حساب الباقي وإتمام البيع</a></li>
+                <li><a href="#print">الطباعة وحفظ PDF</a></li>
+                <li><a href="#debt">البيع للعميل على الدين</a></li>
+                <li><a href="#prepay">الدفع المسبق (عميل أو تاجر)</a></li>
+                <li><a href="#return">استرداد منتج</a></li>
+                <li><a href="#stock">تبويب 📦 المخزون</a></li>
+                <li><a href="#cats">تبويب 🏷️ التصنيفات</a></li>
+                <li><a href="#capital">تبويب 💰 رأس المال</a></li>
+                <li><a href="#stats">تبويب 📊 الإحصائيات</a></li>
+                <li><a href="#counter">تبويب 🧮 العداد</a></li>
+                <li><a href="#bc">تبويب 🔖 الباركود</a></li>
+                <li><a href="#cust">تبويب 👥 العمالاء</a></li>
+                <li><a href="#adv">تبويب 💵 دفع المسبق</a></li>
+                <li><a href="#general">تبويب ⚙ عام</a></li>
+                <li><a href="#expiry">تاريخ الصلاحية</a></li>
+                <li><a href="#backup">النسخ الاحتياطي والخروج</a></li>
+                <li><a href="#update">التحديث التلقائي</a></li>
+                <li><a href="#faq">أسئلة وحلول شائعة</a></li>
+                <li><a href="#report">كيف تبلّغ عن خطأ</a></li>
+            </ol>
+        </aside>
+
+        <main class="doc">
+
+            <!-- ============ 1 ============ -->
+            <section id="start">
+                <h2>1. قبل البداية: المتطلبات والتثبيت</h2>
+                <p class="lead">POS Market BFO برنامج محلي يعمل على جهازك مباشرة، بلا إنترنت وبلا قاعدة بيانات.</p>
+
+                <h3>ما تحتاجه</h3>
+                <table>
+                    <tr><th>البند</th><th>المطلوب</th></tr>
+                    <tr><td>نظام التشغيل</td><td>ويندوز 10 أو 11 — <b>64-bit</b> فقط</td></tr>
+                    <tr><td>برمجيات مساندة</td><td><b>.NET Framework 4.x</b> (موجّه مع ويندوز — لا حاجة لتنزيله)</td></tr>
+                    <tr><td>الرام والمعالج</td><td>أي جهاز مكتبي حديث يكفي (مكتب/لابتوب عادي للمتجر)</td></tr>
+                    <tr><td>الشاشة</td><td>مثالي 1920×1080 — وأقل دقة مدعومة 1366×768 (الواجهة تُصغّر نفسها تلقائياً)</td></tr>
+                    <tr><td>الإنترنت</td><td>غير مطلوب للبيع والمحاسبة — يُستخدم فقط لفحص التحديث التلقائي</td></tr>
+                    <tr><td>الطابعة</td><td>اختياري: أي طابعة معرّفة في ويندوز، أو طابعة حرارية 58/80 مم</td></tr>
+                    <tr><td>ماسح الباركود</td><td>اختياري: ماسح USB يعمل كلوحة مفاتيح (Keyboard Wedge)</td></tr>
+                </table>
+
+                <h3>خطوات التثبيت</h3>
+                <ol class="steps">
+                    <li>خذ نسخة البرنامج (ملف <span class="b">POS Market BFO.zip</span>) من المطور.</li>
+                    <li>أنشئ مجلداً في مكان <b>قابل للكتابة</b> مثل <span class="b">D:\POS</span> أو سطح المكتب، وفكّ الضغط داخله.</li>
+                    <li>شغّل <span class="b">POS Market BFO.exe</span> بنقر مزدوج — لا يحتاج تثبيت ولا صلاحيات مدير.</li>
+                    <li>أول تشغيل يفعّل الترخيص على هذا الجهاز ويُنشئ ملفاته، ثم تفتح الشاشة الرئيسية.</li>
+                    <li>ابدأ بإدخال أصنافك من <span class="b">الإعدادات ← 📦 المخزون ← ➕ إضافة منتج</span>.</li>
+                </ol>
+
+                <div class="stop">⛔ <b>لا تضع البرنامج داخل</b> <span class="b">C:\Program Files</span> — كل بياناتك (products.json ، sales_data.json ، settings.json …) تُحفظ بجانب الملف التنفيذي، ومجلد Program Files محمي من الكتابة فتفشل الحفظ.</div>
+
+                <div class="warn">🔒 <b>الترخيص مرتبط بجهاز واحد.</b> لا تعمل النسخة على جهاز آخر حتى لو نسخت الملفات، ونقل البرنامج لجهاز جديد يحتاج ترخيصاً جديداً من المطور.</div>
+
+                <div class="tip">💡 إذا كانت شاشتك أصغر من 1366×768 فاضغط <kbd>F8</kbd> للتبديل بين ملء الشاشة ونافذة عادية.</div>
+            </section>
+
+            <!-- ============ 2 ============ -->
+            <section id="tour">
+                <h2>2. جولة في الشاشة الرئيسية</h2>
+                <p class="lead">كل ما تحتاجه للبيع موجود في هذه الشاشة: الباركود، السلال، الجداول، والحساب.</p>
+
+                <h3>الشريط العلوي</h3>
+                <ul>
+                    <li><span class="b">اسم المتجر:</span> — يظهر في رأس الفاتورة، ويُعدّل من تبويب ⚙ عام.</li>
+                    <li><span class="b">الساعة</span> — الوقت الحالي، ويُطبع مع الفاتورة.</li>
+                    <li><span class="b">الوضع الحالي:</span> تجزئة أو جملة — يتبدّل بزرّ الوضع، ويحدّد أي سلّة تعمل الآن وأي سعر يُحسب.</li>
+                    <li><span class="b">الإجمالي الكلي</span> — مجموع ما في السلال الآن، ويحدّث مع كل صنف.</li>
+                </ul>
+
+                <h3>القائمة الجانبية (يمين)</h3>
+                <table>
+                    <tr><th>العنصر</th><th>ماذا يفعل</th></tr>
+                    <tr><td><span class="b">القائمة</span></td><td>عنوان الشريط الجانبي.</td></tr>
+                    <tr><td><span class="b">الإعدادات</span></td><td>يفتح لوحة التحكم والتسعة تبويبات (📦 🏷️ 💰 📊 🔖 🧮 👥 💵 ⚙).</td></tr>
+                    <tr><td><span class="b">خروج</span></td><td>نافذة خيارات الخروج: بيع وخروج، نسخة احتياطية، إيقاف الجهاز.</td></tr>
+                    <tr><td><span class="b">تحديث</span></td><td>يعيد تحميل المخزون والتصنيفات والسلال من الملفات — استخدمه إن شعرت أن الأرقام قديمة.</td></tr>
+                    <tr><td><span class="b">🔊 تشغيل الصوت</span> + ●</td><td>صوت «بيب» عند كل مسح. المصباح أخضر = شغال، أحمر = مقفول. الاختيار يُحفظ ويُسترجع عند التشغيل القادم، ويقفل كل تنبيهات الصوت.</td></tr>
+                    <tr><td><span class="b">مسح الباركود</span></td><td>الخانة الرئيسية: الماسح يكتب فيها ويضغط Enter فيُضاف الصنف. تحتها تلميح <span class="b">أرقام فقط</span> — الحروف تلقائياً تُحوّل لأرقام.</td></tr>
+                    <tr><td><span class="b">🔍 بحث</span></td><td>خانتان: <span class="b">📱 بالباركود:</span> و<span class="b">📝 بالاسم:</span> مع <span class="b">✖ مسح البحث</span>. النتيجة تظهر في جدول المخزون فور الكتابة.</td></tr>
+                    <tr><td><span class="b">💰 حساب الباقي</span></td><td><span class="b">💵 المبلغ المدفوع</span> (اكتبه فيُحسب فوراً) و<span class="b">💰 الباقي للزبون</span> بخط كبير — أخضر يكفي، أحمر المبلغ أقل من الإجمالي.</td></tr>
+                    <tr><td>🔴/🟢 مصباح الصلاحية</td><td>أخضر = «كل المنتجات ضمن تاريخ الصلاحية»، أحمر = «لقد انتهت صلاحية أحد المنتجات — راجع المخزون».</td></tr>
+                </table>
+
+                <h3>الإضافة السريعة «بدون باركود»</h3>
+                <p>مربعة بلون برتقالي فاتح أسفل حساب الباقي، فيها:</p>
+                <ul>
+                    <li><span class="b">🥚 عدد</span> / <span class="b">⚖️ وزن</span> — تختار كيف تُعدّ الصنف (حبات أو غرامات).</li>
+                    <li>قائمة منسدلة باختيار الصنف المسجّل بدون باركود.</li>
+                    <li><span class="b">الوزن (غ)</span> أو <span class="b">عدد الحبات</span> حسب الوضع.</li>
+                    <li><span class="b">بسعر</span> — تظهر في وضع الوزن فقط: تكتب المبلغ الذي دفعه الزبون فيحوّله البرنامج غرامات بثمن البطاقة.</li>
+                    <li><span class="b">➕ إضافة للسلة</span> — أو اضغط <kbd>F1</kbd>.</li>
+                    <li><span class="b">📦 الأصناف</span> — تفتح نافذة تسجيل الأصناف التي بلا باركود.</li>
+                </ul>
+
+                <h3>السلّتان وجداول المخزون</h3>
+                <ul>
+                    <li><span class="b">🛒 سلة المنتجات</span> (تجزئة) و<span class="b">📦 سلة الجملة</span> — لكل سلّة أزرارها: <span class="b">➕ زيادة</span>، <span class="b">➖ نقص</span>، <span class="b">🗑 إزالة</span>.</li>
+                    <li><span class="b">⚖️ الميزان</span> — تفتح نافذة وزن الصنف المسعّر بالكيلوغرام.</li>
+                    <li><span class="b">📦 المخزون</span> — جدول لكل الأصناف: <span class="b">المنتج</span>، <span class="b">الكمية</span>، <span class="b">التصنيف</span> — بألوان المخزون.</li>
+                    <li><span class="b">🏷️ التصنيفات</span> — جدول: <span class="b">التصنيف</span> و<span class="b">العدد</span>، والنقر على تصنيف يعرض أصنافه في جدول المخزون.</li>
+                    <li>سطر البيع: <span class="b">✅ تم البيع</span> <kbd>F7</kbd> — <span class="b">✅ إتمام البيع وطباعة</span> — <span class="b">👥 بيع للعميل</span> — <span class="b">🔄 استرداد منتج</span> — <span class="b">💵 دفع مسبق</span>.</li>
+                </ul>
+
+                <h3>تلوين الكميات في جدول المخزون</h3>
+                <table>
+                    <tr><th>اللون</th><th>المعنى</th></tr>
+                    <tr><td><span class="swatch" style="background:#ffb3b3"></span> أحمر فاتح</td><td>مخزون سالب (بِعت أكثر مما سجّلت) — راجع الأصناف فوراً.</td></tr>
+                    <tr><td><span class="swatch" style="background:#ffcdd2"></span> أحمر أفتح</td><td>من 0 إلى 5 وحدات — على وشك النفاد.</td></tr>
+                    <tr><td><span class="swatch" style="background:#fff3cd"></span> أصفر</td><td>من 6 إلى 10 وحدات — كمية قليلة.</td></tr>
+                    <tr><td><span class="swatch" style="background:#d4edda"></span> أخضر</td><td>أكثر من 10 — متوفر.</td></tr>
+                </table>
+            </section>
+
+            <!-- ============ 3 ============ -->
+            <section id="keys">
+                <h2>3. اختصارات لوحة المفاتيح</h2>
+                <p class="lead">كل الاختصارات داخل الشاشة الرئيسية، والهدف أن تبيع بيد واحدة.</p>
+                <table>
+                    <tr><th>المفتاح</th><th>الوظيفة</th></tr>
+                    <tr><td><kbd>F1</kbd></td><td>إضافة صنف خانة «بدون باركود» إلى السلة مباشرة.</td></tr>
+                    <tr><td><kbd>F2</kbd></td><td>حساب الباقي من خانة المبلغ المدفوع.</td></tr>
+                    <tr><td><kbd>F7</kbd></td><td>إتمام البيع (مثل زر ✅ تم البيع).</td></tr>
+                    <tr><td><kbd>F8</kbd></td><td>تكبير/تصغير الشاشة — ملء الشاشة ⇄ نافذة.</td></tr>
+                    <tr><td><kbd>Esc</kbd></td><td>الخروج من ملء الشاشة إلى نافذة.</td></tr>
+                    <tr><td><kbd>Enter</kbd></td><td>في خانة مسح الباركود: يُضيف الصنف. ولا صوت زائد مع الماسح.</td></tr>
+                    <tr><td><kbd>Delete</kbd></td><td>حذف الصنف المحدد من السلة (لا يعمل وأنت تكتب في خانة).</td></tr>
+                    <tr><td><kbd>+</kbd> / <kbd>−</kbd></td><td>زيادة/نقص كمية الصنف المحدد في سلّة الوضع الحالي.</td></tr>
+                </table>
+                <div class="tip">💡 بعد أي ضغطة زر أو نقر، يعود التركيز تلقائياً لخانة <span class="b">مسح الباركود</span> — فما عليك إلا أن تمسح الصنف التالي.</div>
+                <div class="warn">⌨️ علامة <kbd>+</kbd> و<kbd>−</kbd> تُقرأ من المفتاح نفسه وليس من الحرف، لذا لا تتحوّل أرقام الباركود إلى تعديل كمية في اللغات الفرنسية أو العربية.</div>
+            </section>
+
+            <!-- ============ 4 ============ -->
+            <section id="sale">
+                <h2>4. البيع بالباركود (تجزئة)</h2>
+                <ol class="steps">
+                    <li>تأكد أن الوضع الحالي <span class="b">تجزئة</span>.</li>
+                    <li>وجّه الماسح نحو الباركود (أو اكتب رقمه في خانة <span class="b">مسح الباركود</span>).</li>
+                    <li>اضغط <kbd>Enter</kbd> — أو الماسح يرسله تلقائياً فيُضاف الصنف لـ<span class="b">🛒 سلة المنتجات</span>.</li>
+                    <li>كرر المسح لكل صنف. الكمية الافتراضية 1.</li>
+                    <li>زد أو انقص الكمية بزرّ <span class="b">➕ زيادة</span> / <span class="b">➖ نقص</span> أو <kbd>+</kbd> <kbd>−</kbd>، أو بالنقر المزدوج على الصنف في السلة وكتابة الكمية الجديدة.</li>
+                    <li>احذف صنفًا بالخطأ: حدّده واضغط <kbd>Delete</kbd> أو <span class="b">🗑 إزالة</span>.</li>
+                    <li>اضغط <kbd>F7</kbd> أو <span class="b">✅ تم البيع</span> — تظهر رسالة «تمت عملية البيع بنجاح!» ويُنقص المخزون ويُحفظ في الإحصائيات.</li>
+                </ol>
+                <div class="stop">⚠️ رسالة «الكمية المتوفرة: {}» أو «لا يمكن إضافة المزيد» تعني أن مخزون الصنف انتهى — سجّل وارد جديد من تبويب 📦 المخزون قبل البيع.</div>
+                <div class="warn">⚠️ «المنتج غير موجود»: الكود غير مسجّل. انسخه من خانة الباركود وأضِف المنتج من الإعدادات.</div>
+            </section>
+
+            <!-- ============ 5 ============ -->
+            <section id="nocode">
+                <h2>5. الأصناف بدون باركود: وزن وعدد</h2>
+                <p class="lead">الخبز، الخضر والفواكه، البيض… أصناف لا باركود لها: تُعدّ بالحبات أو تُوزن بالغرام.</p>
+
+                <h3>الإضافة من المربعة البرتقالية</h3>
+                <ol class="steps">
+                    <li>في وضع <span class="b">⚖️ وزن</span>: اختر الصنف، واكتب الوزن <b>بالغرام</b> في <span class="b">الوزن (غ)</span> — 250 يعني ربع كيلو.</li>
+                    <li>أو اضغط <span class="b">➕ إضافة للسلة</span> / <kbd>F1</kbd>.</li>
+                    <li>في وضع <span class="b">🥚 عدد</span>: اكتب عدد الحبات (مثلاً 12 بيضة) — وتختفي خانة <span class="b">بسعر</span> لأن الحبات تُعدّ باليد.</li>
+                    <li>الفاتورة تُحسب بالكيلوغرام: 250 غ × 180 دج/كغ = 45 دج.</li>
+                </ol>
+
+                <h3>خانة «بسعر»: الزبون يقول المبلغ</h3>
+                <p>في وضع الوزن، اكتب المبلغ الذي سيدفعه الزبون في <span class="b">بسعر</span> (مثلاً 50) فيحسب البرنامج الغرام المقابلة بثمن البطاقة ويملأ خانة الوزن. كتابة رقم في خانة الوزن بعد ذلك تُلغي المبلغ تلقائياً حتى لا يبقى رقمان يدّعيان صفقتين.</p>
+
+                <h3>تسجيل صنف جديد بلا باركود</h3>
+                <ol class="steps">
+                    <li>اضغط <span class="b">📦 الأصناف</span> تفتح نافذة <span class="b">أصناف بدون باركود</span>.</li>
+                    <li>اكتب <span class="b">الاسم</span> و<span class="b">ثمن البيع</span> (واكتب <span class="b">ثمن الشراء</span> إن أردت حساب الربح).</li>
+                    <li>اختر <span class="b">النوع</span>: وزن (كغ) أو عدد (حبة). لوحة المفاتيح في خانة الثمن تسمح بالأرقام والفاصلة فقط.</li>
+                    <li>فعّل <span class="b">تابع المخزون</span> إن أردت خصم الكمية لكل عملية، واتركها مقفولة للأصناف التي لا تتبّعها.</li>
+                    <li>اضغط <span class="b">💾 حفظ</span>. الصنف يدخل المخزون بأكواد داخلية ويظهر في الجداول وفي نافذة الميزان.</li>
+                    <li>لتعديل صنف: انقر سطره في القائمة السفلية <span class="b">«انقر سطراً بالأسفل لتعديل الصنف»</span>، ثم <span class="b">✏️</span> / <span class="b">🗑 حذف</span>.</li>
+                </ol>
+
+                <div class="warn">⚠️ «لا يوجد منتج بوحدة الكيلوغرام»: افتح الإعدادات وسجّل صنفاً وحدّة القياس <span class="b">كغ</span> حتى تعمل نافذة الميزان.</div>
+                <div class="warn">⚠️ «هذا الاسم مسجّل لصنف له باركود»: الأسماء المكرّرة لهما باركود تُعدّل من تبويب 📦 المخزون، لا من هذه النافذة.</div>
+                <div class="warn">⚠️ «الصنف مسجّل بلا ثمن»: عدّل ثمنه من <span class="b">📦 الأصناف</span> وإلا رفض الإضافة.</div>
+            </section>
+
+            <!-- ============ 6 ============ -->
+            <section id="scale">
+                <h2>6. نافذة ⚖️ الميزان</h2>
+                <p class="lead">للبيع بالوزن بأكثر دقة، من زرّ <span class="b">⚖️ الميزان</span> تحت السلّة.</p>
+                <ol class="steps">
+                    <li>تفتح نافذة <span class="b">⚖️ الميزان</span> وفيها قائمة الأصناف المسعّرة بالكيلوغرام.</li>
+                    <li>اختر الصنف فيظهر <span class="b">ثمن الكيلوغرام</span>.</li>
+                    <li>اكتب الوزن <b>بالغرام</b> في <span class="b">الوزن بالغرام</span>.</li>
+                    <li>يظهر الإجمالي فوراً، ثم <span class="b">➕ إضافة للسلة</span>.</li>
+                </ol>
+                <div class="tip">💡 <b>لا يوجد ميزان إلكتروني موصول بالبرنامج.</b> الوزن يُكتب بعد وزنه على ميزانك أو حمله، والبرنامج يحوّله غرام/كيلو ويحسب الفاتورة بدقة.</div>
+                <div class="tip">💡 كل مواضع كتابة الوزن تأخذ الغرام (الخانة الرئيسية، النافذة، ونافذة الأصناف)، وفي الجداول والفواتير يظهر الكيلوغرام.</div>
+            </section>
+
+            <!-- ============ 7 ============ -->
+            <section id="wholesale">
+                <h2>7. البيع بالجملة</h2>
+                <ol class="steps">
+                    <li>بدّل الوضع إلى <span class="b">جملة</span> — يتغيّر لون الشريط وتعمل <span class="b">📦 سلة الجملة</span>.</li>
+                    <li>امسح الباركود كالمعتاد: السعر المحسوب هو <span class="b">سعر الجملة</span>.</li>
+                    <li>الكميات الكبيرة: استخدم <span class="b">➕ زيادة</span> أو اكتب الكمية بالنقر المزدوج على السطر.</li>
+                    <li>اشترط <span class="b">الحد الأدنى للجملة</span> لكل صنف من الإعدادات، فلا تقلّ كمية الجملة عن الرقم الذي تحدده.</li>
+                    <li>السلّتان تعملان معاً: قد يكون عندك فاتورة تجزئة وفاتورة جملة في نفس اللحظة، وكل واحدة تُحسب بسعرها.</li>
+                    <li>أتمم البيع بنفس الأزرار — الفاتورة تبيّن الأصناف ونوعها (تجزئة/جملة).</li>
+                </ol>
+                <div class="tip">💡 عدّل أسعار الجملة من تبويب 📦 المخزون: <span class="b">✏️ تعديل منتج</span> فيه سعر تجزئة وسعر جملة وثمن شراء للجملة ووحدة الجملة.</div>
+            </section>
+
+            <!-- ============ 8 ============ -->
+            <section id="pay">
+                <h2>8. حساب الباقي وإتمام البيع</h2>
+                <ol class="steps">
+                    <li>بعد اكتمال السلة، اكتب ما أعطاك إياه الزبون في <span class="b">💵 المبلغ المدفوع</span> (أو اضغط <kbd>F2</kbd> بعد كتابته).</li>
+                    <li>اقرأ <span class="b">💰 الباقي للزبون</span> في المربع الكبير: أخضر = صحيح، أحمر = «المبلغ المدفوع أقل من الإجمالي».</li>
+                    <li>أعطِ الزبون الباقي، ثم اضغط <span class="b">✅ تم البيع</span> <kbd>F7</kbd>.</li>
+                    <li>للمبيعات المتكررة في آخر النهار: <span class="b">✅ إتمام مبيعات اليوم</span> من نافذة الخروج يُغلق اليوم ويحفظ كل شيء.</li>
+                </ol>
+                <div class="warn">⚠️ لا يمكن إتمام البيع وسلّتك فارغة («السلة فارغة!»).</div>
+                <div class="warn">⚠️ بعد البيع تظهر رسالة «⚠️ تحذير: بعض المنتجات أصبح مخزونها سالباً!» إن بِعت أكثر مما سجّلت — أدخل الوارد من تبويب 📦 المخزون.</div>
+            </section>
+
+            <!-- ============ 9 ============ -->
+            <section id="print">
+                <h2>9. الطباعة وحفظ PDF</h2>
+                <h3>طباعة الفاتورة</h3>
+                <ol class="steps">
+                    <li>اضغط <span class="b">✅ إتمام البيع وطباعة</span> (أو <span class="b">🖨️ طباعة</span> بعد البيع).</li>
+                    <li>تفتح <span class="b">🖨️ خيارات طباعة الفاتورة</span>.</li>
+                    <li>اختر <span class="b">الطابعة</span> من القائمة (قائمة طابعات ويندوز عندك).</li>
+                    <li>اختر <span class="b">حجم الورقة</span>: <span class="b">57×50 ملم (فاتورة حرارية)</span> أو A4 (210×297) أو A5 (148×210) أو A6 (105×148).</li>
+                    <li>زد <span class="b">عدد النسخ</span> إن أردت نسخة للزبون وأخرى للمحاسبة.</li>
+                    <li>اضغط <span class="b">🖨️ طباعة</span> — وإن أردت الحفظ اضغط <span class="b">📥 حفظ PDF</span>.</li>
+                </ol>
+
+                <h3>حفظ PDF</h3>
+                <ul>
+                    <li>الملف يُنشأ داخل البرنامج نفسه بلا برامج إضافية ولا «طابعة PDF».</li>
+                    <li>يختار البرنامج اسم ملف يقترح عليك مكان الحفظ — ثم رسالة «✅ تم حفظ الفاتورة بنجاح في: …» وسؤال «هل تريد فتح الفاتورة الآن؟».</li>
+                    <li>نفس الزر موجود في 💰 رأس المال، 🔖 الباركود، وكشوف 💵 دفع المسبق (طباعة غير المدفوع).</li>
+                    <li>التقارير الكبيرة تُقسّم تلقائياً على صفحات A4، ويظهر شريط نسبة الإنجاز أثناء حفظ كشف رأس المال الطويل.</li>
+                </ul>
+
+                <div class="warn">⚠️ «الرجاء اختيار طابعة»: لم تُحدّد طابعة في النافذة. وإن كانت القائمة فارغة فالطابعة غير مثبّتة في ويندوز — ثبّتها أولاً من إعدادات Windows ← الطابعات.</div>
+                <div class="tip">💡 للطابعات الحرارية اضبط «دقّة الطابعة» (DPI) عادةً 203، و<span class="b">عرض اللفة</span> 58 أو 80 مم.</div>
+            </section>
+
+            <!-- ============ 10 ============ -->
+            <section id="debt">
+                <h2>10. البيع للعميل على الدين</h2>
+                <ol class="steps">
+                    <li>املأ السلة كما في البيع العادي.</li>
+                    <li>اضغط <span class="b">👥 بيع للعميل</span> تفتح نافذة <span class="b">اختر العميل</span>.</li>
+                    <li>حدّد العميل من الجدول (ابحث بالاسم أو الهاتف) ثم أكّد — تُحفظ الفاتورة كدين باسمه.</li>
+                    <li>لمتابعة ديونه: الإعدادات ← <span class="b">👥 العمالاء</span> ← <span class="b">📋 عرض المشتريات</span>.</li>
+                    <li>عندما يدفع: <span class="b">✅ تم دفع العميل</span> لتسوية الديون المستحقة عليه دفعة واحدة.</li>
+                </ol>
+                <div class="warn">⚠️ «لا يوجد عملاء مسجلين — أضف العميل أولاً من الإعدادات (تبويب العمالاء)»: لا يمكن البيع على الدين لعميل غير مسجّل.</div>
+                <div class="tip">💡 ديون التجزئة والديون الجملة تُحسب كل واحد في قائمة: «إجمالي ديون التجزئة» و«إجمالي ديون الجملة» و«إجمالي الديون المستحقة».</div>
+            </section>
+
+            <!-- ============ 11 ============ -->
+            <section id="prepay">
+                <h2>11. الدفع المسبق (عميل أو تاجر)</h2>
+                <p class="lead">نوعان مختلفان لا تخلط بينهما:</p>
+
+                <h3>أ) رصيد العميل المدفوع مقدّماً</h3>
+                <ol class="steps">
+                    <li>الإعدادات ← <span class="b">👥 العمالاء</span> ← حدّد العميل ← <span class="b">💵 دفعة مقدمة للعميل</span>.</li>
+                    <li>اكتب المبلغ وملاحظة اختيارية ثم <span class="b">💾 حفظ الدفعة</span> — يزداد <span class="b">💵 الدفع المسبق</span> باسمه.</li>
+                    <li>عند البيع من الشاشة الرئيسية اضغط <span class="b">💵 دفع مسبق</span> واختر العميل: يُخصم من رصيده تلقائياً والباقي يُحسب.</li>
+                    <li>الرسالة توضّح: «💵 يُصرف من دفعه المسبق: … — والنقد الآن: …».</li>
+                </ol>
+
+                <h3>ب) كشف التاجر (المورّد) والمنتجات بالأجل</h3>
+                <ol class="steps">
+                    <li>من الشاشة الرئيسية، بعد ملء السلة، اضغط <span class="b">💵 دفع مسبق</span> واختر التاجر — تنتقل أصناف السلّة إلى كشفه كلها «غير مدفوعة»، أو ادفع جزءاً فيُخصم.</li>
+                    <li>المتابعة من الإعدادات ← <span class="b">💵 دفع المسبق</span>: الأصناف بأسطرها، المدفوع وغير المدفوع، وآخر حركة.</li>
+                    <li>تسوية صنف: حدّده ثم <span class="b">✔ تعليم مدفوع</span> (أو <span class="b">↩ تعليم غير مدفوع</span> للتراجع).</li>
+                    <li>كشف غير المدفوع للطباعة: <span class="b">🖨️ طباعة غير المدفوع</span> أو <span class="b">💵 تم الدفع — اطبع</span> بعد الدفعة.</li>
+                </ol>
+                <div class="tip">💡 كل البيع المسجّل باسم تاجر يُضاف تلقائياً إلى كشفه في التبويب، فلا إعادة كتابة للأصناف.</div>
+                <div class="warn">⚠️ «المبلغ أقل من ثمن أي صنف غير مدفوع في هذا الكشف»: الدفعة لا تكفي لتسوية أي سطر — زيدها أو سلّف الصطر واحداً واحداً.</div>
+            </section>
+
+            <!-- ============ 12 ============ -->
+            <section id="return">
+                <h2>12. استرداد منتج</h2>
+                <ol class="steps">
+                    <li>اضغط <span class="b">🔄 استرداد منتج</span> تفتح نافذة المبيعات السابقة.</li>
+                    <li>اختر الفاتورة ثم حدّد المنتج المراد استرداده.</li>
+                    <li>أكّد «هل تريد استرداد المنتج المحدد؟» — يُعاد للمخزون ويُزال من الإحصائيات.</li>
+                    <li>إن أردت، اطبع مرتجعًا: من خيارات الطباعة يُحفظ ويُرسل للطابعة ملف PDF للاسترداد.</li>
+                </ol>
+                <div class="warn">⚠️ «لا توجد مبيعات سابقة للاسترداد»: لم تُسجّل أي فاتورة بعد على هذا الجهاز.</div>
+            </section>
+
+            <!-- ============ 13 ============ -->
+            <section id="stock">
+                <h2>13. تبويب 📦 المخزون (إدارة المنتجات)</h2>
+                <p class="lead">تفتح الإعدادات <span class="b">⚙ لوحة التحكم والإعدادات</span> ثم تختار التبويب.</p>
+                <h3>أزرار التبويب</h3>
+                <ul>
+                    <li><span class="b">➕ إضافة منتج</span> — البطاقة الكاملة.</li>
+                    <li><span class="b">✏️ تعديل منتج</span> — عدّل أي حقل لصنف محدد.</li>
+                    <li><span class="b">🗑️ حذف منتج</span> — حذف صنف واحد أو مجموعة بعد التأكيد.</li>
+                    <li>ثلاث خانات بحث: <span class="b">الباركود</span>، <span class="b">إسم المنتج</span>، <span class="b">التصنيف</span> — مع <span class="b">✖</span> لتفريغها.</li>
+                    <li>الجدول بأعمدة: الباركود، الاسم، ثمن الشراء، شراء الجملة، سعر التجزئة، سعر الجملة، التصنيف، الكمية، <span class="b">تاريخ الصلاحية</span> — وكل عمود قابل للفرز بالنقر على رأسه.</li>
+                </ul>
+
+                <h3>حقول بطاقة المنتج</h3>
+                <table>
+                    <tr><th>الحقل</th><th>الشرح</th></tr>
+                    <tr><td><span class="b">الباركود</span></td><td>رقم الصنف — أرقام فقط. اتركه فارغاً لصنف بالميزان.</td></tr>
+                    <tr><td><span class="b">إسم المنتج</span></td><td>الاسم الظاهر في الفاتورة والبحث.</td></tr>
+                    <tr><td><span class="b">ثمن الشراء</span> / <span class="b">سعر شراء الجملة</span></td><td>التكلفة — تُستخدم لحساب الربح ورأس المال.</td></tr>
+                    <tr><td><span class="b">سعر التجزئة</span> / <span class="b">سعر الجملة</span></td><td>سعر البيع في كل وضع.</td></tr>
+                    <tr><td><span class="b">تاريخ الصلاحية</span></td><td>يبدأ وينتهي (yyyy-MM-dd) — راجع فقرة الصلاحية.</td></tr>
+                    <tr><td><span class="b">الكمية</span></td><td>الرصيد المتوفر، يُخصم عند كل بيع ويُضاف عند تسجيل وارد جديد.</td></tr>
+                    <tr><td><span class="b">وحدة القياس</span></td><td><span class="b">حبة</span> للعدد أو <span class="b">كغ</span> للميزان. منها يعرف البرنامج هل يبيع بالحبات أم بالغرام.</td></tr>
+                    <tr><td><span class="b">تتبع الكمية</span></td><td>مقفول = بيع بلا نقصان مخزون (مثلاً أكياس البلاستيك).</td></tr>
+                    <tr><td><span class="b">الحد الأدنى للجملة</span></td><td>أقل كمية تُباع بسعر الجملة.</td></tr>
+                    <tr><td><span class="b">عدد الجملة (حبة/وحدة):</span></td><td>كم حبة أو وحدة في العبوة الواحدة عند البيع بالجملة.</td></tr>
+                    <tr><td><span class="b">التصنيف</span></td><td>يظهر في الفلترة وفي تقرير الباركود.</td></tr>
+                </table>
+                <div class="tip">💡 «اضغط Enter للحفظ» — لا حاجة للنقر على زر الحفظ في كل نافذة إدخال.</div>
+                <div class="warn">⚠️ «المنتج موجود مسبقاً»: الباركود مستعمل. «الباركود يجب أن يكون أرقاماً فقط» لا يقبل الحروف.</div>
+            </section>
+
+            <!-- ============ 14 ============ -->
+            <section id="cats">
+                <h2>14. تبويب 🏷️ التصنيفات</h2>
+                <ul>
+                    <li><span class="b">➕ إضافة تصنيف</span> — بالاسم فقط.</li>
+                    <li><span class="b">✏️ تعديل تصنيف</span> — تغيير الاسم (يتحدّث فوراً في كل الشاشات).</li>
+                    <li><span class="b">🗑️ حذف تصنيف</span> — مرفوض إن كان فيه أصناف: «لا يمكن الحذف، يوجد {} منتج في هذا التصنيف».</li>
+                    <li>جدولان جنباً إلى جنب: <span class="b">التصنيف</span> و<span class="b">العدد</span>، وبجانبه أصناف التصنيف المختار: اسم المنتج، سعر التجزئة، سعر الجملة، الكمية، والقيمة الإجمالية.</li>
+                    <li>شريط داكن بالملخص: <span class="b">إجمالي التصنيفات</span> و<span class="b">إجمالي منتجات التصنيف</span>.</li>
+                    <li>النقر على تصنيف في الشاشة الرئيسية يفلتر جدول <span class="b">📦 المخزون</span> على أصنافه.</li>
+                </ul>
+                <div class="tip">💡 التصنيف «بدون تصنيف» يحفظ الأصناف التي لم تختر لها تصنيفاً.</div>
+            </section>
+
+            <!-- ============ 15 ============ -->
+            <section id="capital">
+                <h2>15. تبويب 💰 رأس المال</h2>
+                <p class="lead">قيمة بضاعتك الموجودة الآن، محسوبة من المخزون وأسعار الشراء.</p>
+                <ul>
+                    <li>جدول بكل صنف: باركود، اسم، تصنيف، ثمن شراء، شراء جملة، سعر تجزئة، سعر جملة، كمية.</li>
+                    <li>شريط سفلي داكن: <span class="b">إجمالي رأس المال:</span> و<span class="b">إجمالي التجزئة:</span> و<span class="b">إجمالي الجملة:</span>.</li>
+                    <li><span class="b">التصنيف:</span> ففلتر «الكل» أو تصنيف واحد، و<span class="b">🔄 تحديث</span> لإعادة الحساب بعد إدخال وارد.</li>
+                    <li><span class="b">📥 حفظ كـ PDF</span> — تقرير كامل على صفحات A4 مع شريط نسبة الإنجاز وزر «جارٍ الحفظ…».</li>
+                    <li>فرز الأعمدة: انقر رأس أي عمود لترتيب الأصناف عليه (تكرار النقر يعكس الاتجاه).</li>
+                </ul>
+                <div class="warn">⚠️ الأصناف التي بلا ثمن شراء تُحسب بربح غير دقيق — أدخل التكلفة في بطاقة كل منتج.</div>
+            </section>
+
+            <!-- ============ 16 ============ -->
+            <section id="stats">
+                <h2>16. تبويب 📊 الإحصائيات</h2>
+                <p class="lead">حصاد اليوم في شاشة واحدة.</p>
+                <ul>
+                    <li>أربع بطاقات: <span class="b">عدد مبيعات اليوم</span>، <span class="b">مبيعات التجزئة اليوم</span>، <span class="b">مبيعات الجملة اليوم</span>، <span class="b">أرباح اليوم</span>.</li>
+                    <li>جدولان: <span class="b">سلة المنتجات</span> (تجزئة) و<span class="b">سلة الجملة</span> — لكل صنف: الاسم، الكمية، السعر، الإجمالي، الوقت، التاريخ.</li>
+                    <li>سطر أخير: <span class="b">إجمالي المبيعات</span> = تجزئة + جملة، ومجموع كل جدول فوقه.</li>
+                    <li>فرز الأعمدة بالنقر على الرأس.</li>
+                    <li>الحسابات كلها دقيقة بالنقود (لا أخطاء الفاصلة العائمة)، والربح = سعر البيع − تكلفة الوحدة × الكمية.</li>
+                </ul>
+                <div class="tip">💡 ما تراه هنا مبيعات اليوم فقط. للكم الإجمالي منذ بداية العمل استخدم <span class="b">🧮 العداد</span>.</div>
+            </section>
+
+            <!-- ============ 17 ============ -->
+            <section id="counter">
+                <h2>17. تبويب 🧮 العداد</h2>
+                <ul>
+                    <li>عنوان <span class="b">إجمالي الإحصائيات</span> وبطاقة بنفسجية <span class="b">إجمالي المنتجات المباعة</span> (عدد وحدات بيعتها).</li>
+                    <li>بطاقة صفراء <span class="b">إجمالي الأرباح</span> بالنقود مع رمز العملة.</li>
+                    <li>سطر <span class="b">آخر تحديث:</span> بالتاريخ والساعة.</li>
+                </ul>
+                <p>لا أزرار فيه — هي لوحة قراءة فقط لأرقام كل الفترات السابقة.</p>
+            </section>
+
+            <!-- ============ 18 ============ -->
+            <section id="bc">
+                <h2>18. تبويب 🔖 الباركود (ملصقات الأسعار)</h2>
+                <p class="lead">لملصقات 3×3 سم أو أي مقاس على ورق A4 أو لفة حرارية.</p>
+
+                <h3>🏷️ بيانات المنتج</h3>
+                <ul>
+                    <li><span class="b">رقم الباركود</span> — اكتبه أو اضغط <span class="b">توليد عشوائي</span>.</li>
+                    <li><span class="b">إسم المنتج</span> و<span class="b">السعر</span> — تظهر داخل اللاصقة أو تختفي حسب النمط.</li>
+                    <li><span class="b">مولد الباركود</span> و<span class="b">معاينة الباركود</span> — شكل اللاصقة أمامك مباشرة مع خيار <span class="b">تحديث تلقائي</span>.</li>
+                    <li><span class="b">إنشاء باركود</span> يربط الكود الجديد ببطاقة الصنف.</li>
+                </ul>
+
+                <h3>📋 محتوى اللاصقة</h3>
+                <ul>
+                    <li><span class="b">نمط جاهز</span>: باركود فقط، باركود + سعر، باركود + إسم + سعر، إسم + سعر بدون باركود، سعر فقط، إسم فقط، أو <span class="b">حسب الطلب</span>.</li>
+                    <li>موضع النص: <span class="b">فوق الباركود</span> / <span class="b">تحت الباركود</span> / <span class="b">لا يُطبع</span>، والمحاذاة: بداية/وسط/نهاية.</li>
+                    <li><span class="b">أعمدة الباركود</span> وسمكها: نادية 0.25 مم، عادية 0.35 مم، عريضة 0.45 مم، عريضة جداً 0.55 مم، أو <span class="b">بعرض اللاصقة</span>.</li>
+                    <li><span class="b">ارتفاع الخطوط (مم)</span> و<span class="b">المسافات (مم)</span> بين اللاصقات.</li>
+                </ul>
+
+                <h3>🖨️ قواعد الطباعة</h3>
+                <ul>
+                    <li><span class="b">مقاس اللاصقة</span> العرض × الارتفاع بالملليمتر، مع مقاسات جاهزة أو <span class="b">مقاس مخصص</span>.</li>
+                    <li>البرنامج يحسب تلقائياً: <span class="b">«{} لاصقة في الورقة · {} صفحة»</span> على ورق A4.</li>
+                    <li>المسافات: <span class="b">المسافة العلوية</span>، <span class="b">المسافة الجانبية</span>، <span class="b">الفراغ بين اللاصقات</span>.</li>
+                    <li>الأزرار: <span class="b">📥 حفظ كـ PDF</span> (ورقة A4 كاملة موزّعة اللاصقات)، <span class="b">حفظ كصورة</span>، <span class="b">طباعة حرارية</span>.</li>
+                </ul>
+
+                <h3>🖨 الطابعة الحرارية</h3>
+                <ul>
+                    <li><span class="b">عرض اللفة</span>: 58 أو 80 مم.</li>
+                    <li><span class="b">دقّة الطابعة</span> (Resolution/DPI): عادةً 203 أو 300.</li>
+                    <li>الرسالة بعد الإرسال: «أُرسلت {} لاصقة إلى {}».</li>
+                </ul>
+                <div class="warn">⚠️ «الطابعة غير متوفرة:» — الطابعة غير مثبّتة أو غير متصلة. «أنشئ الباركود أولاً» — اضغط <span class="b">إنشاء</span> قبل الحفظ أو الطباعة.</div>
+            </section>
+
+            <!-- ============ 19 ============ -->
+            <section id="cust">
+                <h2>19. تبويب 👥 العمالاء</h2>
+                <ul>
+                    <li><span class="b">➕ إضافة عميل</span> — الاسم، <span class="b">🆔 الرقم الوطني</span> (مطلوب ولا يتكرر)، العنوان، الهاتف.</li>
+                    <li><span class="b">✏️ تعديل عميل</span> و<span class="b">🗑️ حذف عميل</span> بعد تأكيد.</li>
+                    <li><span class="b">✅ تم دفع العميل</span> — تسوية كل ديون العميل المحدد دفعة واحدة مع عرض الإجمالي للتأكيد.</li>
+                    <li><span class="b">📋 عرض المشتريات</span> — كشف كل ما اشتراه العميل.</li>
+                    <li><span class="b">💵 دفعة مقدمة للعميل</span> — شحن رصيد الدفع المسبق.</li>
+                    <li>جدول بأعمدة: <span class="b">الرقم</span>، <span class="b">🆔 الرقم الوطني</span>، <span class="b">اسم العميل</span>، <span class="b">الهاتف</span>، <span class="b">العنوان</span>، <span class="b">إجمالي المشتريات</span>، <span class="b">💵 الدفع المسبق</span>، <span class="b">آخر عملية</span> — مع بحث و<span class="b">✖</span>.</li>
+                    <li>أشرطة الملخص: <span class="b">💰 إجمالي الديون المستحقة</span>، ديون التجزئة، ديون الجملة.</li>
+                </ul>
+                <div class="warn">⚠️ «الرقم الوطني موجود مسبقاً» — عميل مكرّر. «الرجاء إدخال الرقم الوطني» — بلا رقم لا يُحفظ العميل.</div>
+            </section>
+
+            <!-- ============ 20 ============ -->
+            <section id="adv">
+                <h2>20. تبويب 💵 دفع المسبق (كشوف التجار)</h2>
+                <ul>
+                    <li><span class="b">➕ شخص جديد</span> — تاجر أو مورّد بالاسم (تحذير عند تكرار الاسم).</li>
+                    <li><span class="b">➕ إضافة صنف</span> — اسم الصنف، الكمية، الثمن، ملاحظة.</li>
+                    <li><span class="b">➕ أضف أصناف السلة</span> — ينقل ما في السلة الرئيسية إلى كشف التاجر مباشرة غير مدفوع.</li>
+                    <li>الأعمدة: م / سطر / الصنف / الكمية / الثمن / الإجمالي / المدفوع / غير المدفوع / الحالة / آخر حركة.</li>
+                    <li><span class="b">✏️ تعديل الصنف</span>، <span class="b">🗑️ حذف الصنف</span>، <span class="b">✏️ تعديل الشخص</span>، <span class="b">🗑️ حذف الشخص</span> (بكل أصنافه بعد تأكيد).</li>
+                    <li><span class="b">✔ تعليم مدفوع</span> / <span class="b">↩ تعليم غير مدفوع</span> لسطر، أو <span class="b">💵 تم الدفع — اطبع</span> لتسوية أسطر بقيمة الدفعة.</li>
+                    <li>الملخص: <span class="b">المدفوع:</span>، <span class="b">غير المدفوع:</span>، <span class="b">الإجمالي:</span>، وعدد الأصناف.</li>
+                    <li><span class="b">الحالة:</span> فلتر — الكل / مدفوع بالكامل / غير مدفوع.</li>
+                    <li><span class="b">الوضع:</span> تجزئة أو جملة، لكل وضع قائمة أصنافه.</li>
+                    <li><span class="b">🖨️ طباعة غير المدفوع</span> — PDF بأصناف التاجر التي لم تُسدَّد بعد.</li>
+                </ul>
+                <div class="tip">💡 «اختر شخصاً أولاً» و«اختر صنفاً من الجدول» تلميحات تخبرك ماذا ينقص العملية.</div>
+            </section>
+
+            <!-- ============ 21 ============ -->
+            <section id="general">
+                <h2>21. تبويب ⚙ عام</h2>
+                <ul>
+                    <li><span class="b">اسم المتجر:</span> — يظهر أعلى الشاشة وفي رأس الفاتورة.</li>
+                    <li><span class="b">رمز العملة:</span> — مثل دج، يُطبع مع كل المبالغ.</li>
+                    <li><span class="b">اللغة</span> (قائمة): العربية / English / Français — التبديل فوري وكل النوافذ تتغيّر، والعربية من اليمين لليسار.</li>
+                    <li><span class="b">حجم الخط:</span> — يُكبّر أو يصغّر نصوص الجداول.</li>
+                    <li><span class="b">🚀 تشغيل تلقائي مع Windows</span> — يُنشئ اختصاراً في مجلد Startup فيفتح الصندوق مع تشغيل الجهاز، وإلغاؤه يمسحه.</li>
+                    <li><span class="b">🔄 تحديث تلقائي عند فتح الصندوق</span> — يفتح أو يقفل فحص التحديث.</li>
+                    <li><span class="b">🔎 فحص التحديث الآن</span> — يفحص فوراً ويعرض <span class="b">آخر حالة:</span>.</li>
+                    <li><span class="b">إصدار البرنامج:</span> — رقم النسخة — انسخه في أي بلاغ خطأ.</li>
+                    <li><span class="b">💾 حفظ الإعدادات</span> — يحفظ كل ما غيّرته.</li>
+                    <li><span class="b">📚 تعلم أكثر</span> — يفتح <span class="b">📘 دليل استخدام النظام</span> داخل البرنامج.</li>
+                    <li>أزرار روابط: <span class="b">📞 للتواصل والدعم</span>، <span class="b">▶️ يوتيوب: @xomargamerx978</span>، وروابط التواصل الرسمية.</li>
+                </ul>
+                <div class="warn">⚠️ لا تُغلق البرنامج قبل <span class="b">💾 حفظ الإعدادات</span> إن غيّرت اسم المتجر أو العملة أو اللغة.</div>
+            </section>
+
+            <!-- ============ 22 ============ -->
+            <section id="expiry">
+                <h2>22. تاريخ الصلاحية</h2>
+                <ul>
+                    <li>في بطاقة المنتج: <span class="b">تفعيل تاريخ الصلاحية</span> ثم <span class="b">يبدأ الصلاحية في:</span> و<span class="b">ينتهي الصلاحية في:</span> بالصيغة yyyy-MM-dd.</li>
+                    <li>اترك التاريخ فارغاً لصنف بلا صلاحية (ملح، سكر معبأ…).</li>
+                    <li>عمود <span class="b">تاريخ الصلاحية</span> في جدول المخزون داخل الإعدادات.</li>
+                    <li>المصباح في الشريط الجانبي: 🟢 «كل المنتجات ضمن تاريخ الصلاحية» — 🔴 «لقد انتهت صلاحية أحد المنتجات — راجع المخزون».</li>
+                    <li>يوم الانتهاء نفسه لا يُعتبر منتهياً؛ الصلاحية تنتهي في اليوم التالي.</li>
+                </ul>
+                <div class="tip">💡 المصباح الأحمر ينبّهك لمنتج واحد منتهي على الأقل — ابحث في جدول المخزون عن العمود لترى الباقي.</div>
+            </section>
+
+            <!-- ============ 23 ============ -->
+            <section id="backup">
+                <h2>23. النسخ الاحتياطي والخروج</h2>
+                <h3>خيارات الخروج (زرّ <span class="b">خروج</span>)</h3>
+                <ul>
+                    <li><span class="b">✅ إتمام البيع والخروج</span> — يُسجّل ما في السلل ثم يقفل البرنامج.</li>
+                    <li><span class="b">خروج بدون بيع</span> — يقفل دون تسجيل السلّة الحالية (تبقى كما هي).</li>
+                    <li><span class="b">✅ إتمام مبيعات اليوم</span> — إغلاق اليوم مع تأكيد «هل أنت متأكد من إتمام مبيعات اليوم؟».</li>
+                    <li><span class="b">💾 نسخة احتياطية</span> — يفتح نافذة النسخ الاحتياطي.</li>
+                    <li><span class="b">💾 نسخ احتياطي وخروج</span> — نسخة ثم إغلاق.</li>
+                    <li><span class="b">🖥️ إيقاف تشغيل الجهاز + إتمام البيع</span> — يسجّل البيع ثم يطفي الجهاز (بتأكيد).</li>
+                    <li><span class="b">🖥️ إيقاف تشغيل الجهاز فقط</span> — يطفي الجهاز من غير حفظ المبيعات الحالية (بتأكيد).</li>
+                </ul>
+
+                <h3>نافذة النسخ الاحتياطي</h3>
+                <ol class="steps">
+                    <li>تظهر <span class="b">الأقراص المتوفرة</span> — اختر القرص (يفضّل قرصاً غير القرص الذي فيه البرنامج، مثل USB).</li>
+                    <li>تحت <span class="b">ملفات النسخة المحفوظة من تطبيق</span> تراها النسخ السابقة.</li>
+                    <li>اضغط <span class="b">إنشاء نسخة احتياطية الآن</span> → «✅ تم إنشاء النسخة الاحتياطية بنجاح» مع موقعها.</li>
+                    <li>للرجوع: انسخ الملفات من مجلد النسخة إلى مجلد البرنامج بنفس الأسم.</li>
+                </ol>
+                <div class="warn">⚠️ «لا توجد أقراص متوفرة للنسخ الاحتياطي» — لا يوجد قرص آخر موصول؛ ثبّت USB أو قرصاً خارجياً.</div>
+                <div class="tip">💡 اعمل نسخة احتياطية كل أسبوع على الأقل — كل بياناتك في ملفات JSON بجانب البرنامج.</div>
+            </section>
+
+            <!-- ============ 24 ============ -->
+            <section id="update">
+                <h2>24. التحديث التلقائي</h2>
+                <ul>
+                    <li>عند فتح البرنامج تظهر نافذة «🔎 جاري البحث عن تحديثات…».</li>
+                    <li>لو وجدت نسخة جديدة: «⬇️ جاري التنزيل…» مع نسبة، ثم «تم التحميل بنجاح».</li>
+                    <li>التحديث يُثبَّت من وحده عند أول فتح جديد ويظهر «✅ اتركّب التحديث <i>رقم النسخة</i>».</li>
+                    <li>لو كانت نسختك أحدث: «البرنامج أحدث نسخة» ويفتح الصندوق عادي.</li>
+                    <li>بلا إنترنت: «⚠️ مصدر التحديث ما وصلش (الإنترنت؟) — الصندوق هيفتح عادي» — ولا شيء يتعطّل.</li>
+                    <li>تقفل الميزة أو تفتحها من تبويب ⚙ عام → <span class="b">🔄 تحديث تلقائي عند فتح الصندوق</span>، وتتحقق يدوياً بـ<span class="b">🔎 فحص التحديث الآن</span>.</li>
+                </ul>
+                <div class="stop">⛔ إن قال «التحديث اتركّب: اقفل الصندوق وافتحه من الأيقونة تاني» — اقفل البرنامج تماماً وافتحه من الأيقونة ليُكمَّل التركيب.</div>
+                <div class="warn">⚠️ «⚠️ التحديث مرفوض: الملف المحمّل ما طابقتش النسخة الأصلية» — حماية ضد ملف تالف؛ أعد المحاولة أو تواصل مع المطور.</div>
+                <div class="tip">💡 التحديث لا يغيّر بياناتك: ملفات JSON تبقى كما هي، ويُمسح فقط الملف التنفيذي القديم.</div>
+            </section>
+
+            <!-- ============ 25 ============ -->
+            <section id="faq">
+                <h2>25. أسئلة وحلول شائعة</h2>
+                <table>
+                    <tr><th>ما تراه</th><th>السبب والحل</th></tr>
+                    <tr><td>البرنامج لا يفتح أو تظهر رسالة «خطأ في الملفات (code:0x01 / 0x02)»</td><td>ملفات الترخيص ناقصة أو تغيّر الجهاز — راسل المطور برقم جهازك وبيانات الشراء.</td></tr>
+                    <tr><td>«خطأ في الحفظ» أو البيانات تضيع بعد الإغلاق</td><td>مجلد البرنامج في مكان محمي (Program Files) — انسخ المجلد كله إلى D:\ أو سطح المكتب وشغّل منه.</td></tr>
+                    <tr><td>الواجهة مضغوطة أو النص صغير</td><td>دقة شاشتك أقل من 1366×768 — اضغط <kbd>F8</kbd> أو غيّر دقة ويندوز.</td></tr>
+                    <tr><td>الماسح لا يعمل</td><td>يجب أن يكون ماسح USB بوضع Keyboard Wedge؛ ووجّه المؤشر لخانة <span class="b">مسح الباركود</span> أولاً.</td></tr>
+                    <tr><td>«المنتج غير موجود» مع كود صحيح</td><td>لم يُسجّل بعد، أو فيه حروف — البرنامج يحوّلها لأرقام. سجّله من تبويب 📦 المخزون.</td></tr>
+                    <tr><td>لا صنف في خانة الميزان</td><td>لا يوجد صنف وحدته <span class="b">كغ</span> — ضيف الوحدة من بطاقة المنتج.</td></tr>
+                    <tr><td>قائمة الطابعات فارغة</td><td>لا طابعة مثبّتة في ويندوز — ثبّت الطابعة من إعدادات Windows ثم اضغط <span class="b">🔄 تحديث</span>.</td></tr>
+                    <tr><td>الطباعة الحرارية تخرج مقصوصة</td><td>اضبط <span class="b">عرض اللفة</span> (58/80 مم) و<span class="b">دقّة الطابعة</span> (203/300) على الطابعة الحقيقية.</td></tr>
+                    <tr><td>الأصناف أو الكميات لا تتحدّث</td><td>اضغط <span class="b">🔄 تحديث</span> في القائمة الجانبية لإعادة تحميل الملفات.</td></tr>
+                    <tr><td>الأصوات مزعجة</td><td>أطفئ <span class="b">🔊 تشغيل الصوت</span> فيُصبح المصباح أحمر ويقفل كل التنبيهات.</td></tr>
+                    <tr><td>«مخزون سالب»</td><td>بِعت كمية غير مسجّلة — أدخل الوارد الجديد أو عدّل الكمية من تبويب 📦 المخزون.</td></tr>
+                    <tr><td>الأرقام لا تساوي الحساب</td><td>البرنامج يحسب النقود بدقة كاملة؛ راجع ثمن الشراء ووحدة القياس لكل صنف.</td></tr>
+                    <tr><td>البرنامج يطلب تحديث كل مرة</td><td>لم يُفتح مرة بعد التحميل ليُكمَّل التركيب — اقفل وافتح من الأيقونة.</td></tr>
+                </table>
+            </section>
+
+            <!-- ============ 26 ============ -->
+            <section id="report">
+                <h2>26. كيف تبلّغ عن خطأ</h2>
+                <p class="lead">بلاغ مرتّب = حل أسرع. كل بلاغ يُفتح كـ Issue على GitHub ويبقى كل شيء في سجل واحد.</p>
+                <ol class="steps">
+                    <li>افتح الإعدادات ← تبويب ⚙ عام وانسخ <span class="b">إصدار البرنامج:</span>.</li>
+                    <li>صوّر الشاشة لحظة الخطأ (مفتاح <kbd>Print Screen</kbd> أو أداة Snipping Tool).</li>
+                    <li>اذكر الخطوات بالترتيب: ماذا ضغطت ← ماذا توقعت ← ماذا حدث.</li>
+                    <li>اذكر اللغة (عربي/إنجليزي/فرنسي) ودقة شاشتك.</li>
+                    <li>افتح نموذج البلاغ واملا الخانات ثم أرسل.</li>
+                </ol>
+                <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap;">
+                    <a class="btn-white" style="background:var(--primary); color:#fff;" href="https://github.com/XomargamerX3/POS-Market-BFO-website/issues/new?template=bug_report.md" target="_blank">🐞 فتح بلاغ خطأ</a>
+                    <a class="btn-white" style="background:var(--dark);" href="https://github.com/XomargamerX3/POS-Market-BFO-website/issues" target="_blank">🗂️ كل البلاغات</a>
+                    <a class="btn-white" style="background:#4267B2;" href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank">📘 Facebook</a>
+                    <a class="btn-white" style="background:#FF0000;" href="https://www.youtube.com/@xomargamerx978" target="_blank">▶️ YouTube</a>
+                    <a class="btn-white" style="background:#5865F2;" href="https://discord.com/channels/970119086493274132/970119086493274135" target="_blank">💬 Discord</a>
+                </div>
+                <div class="tip" style="margin-top:18px;">💡 <b>لا تشارك أحداً</b> ملفات <span class="b">license.dll</span> أو <span class="b">settings.json</span> أو نسخة برنامجك — فيها بياناتك وترخيص جهازك.</div>
+            </section>
+
+        </main>
+    </div>
+
+    <div class="foot-cta">
+        <div>
+            <h3>🛒 جاهز لتجربة النظام؟</h3>
+            <p>النسخة وتفاصيل الترخيص والأسعار عند المطور مباشرة — والبرنامج يعمل بلا إنترنت.</p>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a href="index.html" class="btn-white">🏠 الرئيسية</a>
+            <a href="index.html#download" class="btn-white">📥 احصل على النسخة</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>POS Market BFO — نظام نقاط البيع | المطور: <a href="index.html#about">عمر بن مامو</a></p>
+        <p>© 2026 — <a href="index.html#support">🐞 الإبلاغ عن خطأ</a></p>
+    </footer>
+
+    <script>
+        // تمرير سلس داخل الدليل
+        document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+            anchor.addEventListener('click', function (e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
