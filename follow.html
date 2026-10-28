@@ -236,7 +236,7 @@
         <div class="card">
             <h1>🔎 متابعة البلاغ</h1>
             <p class="sub">
-                اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR</b>) وشوف رد المطور عليه.
+                اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR</b>) — الرد بيظهر لوحده أول ما الكود يكتمل، والصفحة بتحدّث نفسها كل شوية.
                 الكود بيتبعت جوه البلاغ نفسه كمان.
             </p>
             <form id="followForm" autocomplete="off" novalidate>
@@ -282,7 +282,12 @@
 
         const ADD_PREFIX = 'إضافة على البلاغ';
         const MAX_SHOTS = 3;
+        const REFRESH_MS = 15000;
+        const REPLIES_TTL = 5 * 60 * 1000;
         let shots = [];
+        let lastCode = '';
+        let repliesCache = null;
+        let repliesAt = 0;
 
         const BADGES = {
             fixed: ['✅ تم إصلاح المشكلة', 'fixed'],
@@ -319,6 +324,15 @@
                         if (!r.ok) throw r.status;
                         return r.json();
                     });
+            });
+        }
+
+        function getRepliesCached() {
+            if (repliesCache && Date.now() - repliesAt < REPLIES_TTL) return Promise.resolve(repliesCache);
+            return getReplies().then(function (data) {
+                repliesCache = data;
+                repliesAt = Date.now();
+                return data;
             });
         }
 
@@ -467,26 +481,31 @@
             result.innerHTML = html;
         }
 
-        function check() {
+        function check(quiet) {
             const code = norm(input.value);
             if (!code) {
-                result.innerHTML = '<p class="empty">الكود مش شكله صح — اكتبه زي BFO-OMAR.</p>';
-                input.focus();
+                if (!quiet) {
+                    result.innerHTML = '<p class="empty">الكود مش شكله صح — اكتبه زي BFO-OMAR.</p>';
+                    input.focus();
+                }
                 return;
             }
-            input.value = code;
+            lastCode = code;
+            if (!quiet) input.value = code;
 
             try { history.replaceState(null, '', 'follow.html?code=' + encodeURIComponent(code)); } catch (e) {}
             try { localStorage.setItem('bfo_last_code', code); } catch (e) {}
 
-            btn.disabled = true;
             const label = btn.textContent;
-            btn.textContent = '⏳ بيفحص…';
+            if (!quiet) {
+                btn.disabled = true;
+                btn.textContent = '⏳ بيفحص…';
+            }
 
             let replies = null;
             let repliesOk = false;
 
-            getReplies().then(function (data) {
+            getRepliesCached().then(function (data) {
                 replies = data;
                 repliesOk = true;
             }).catch(function () {}).then(function () {
@@ -523,10 +542,12 @@
                 render(entry, repliesOk || !!entry, report, items);
                 addBox.hidden = false;
             }).catch(function () {
-                result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';
+                if (!quiet) result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';
             }).then(function () {
-                btn.disabled = false;
-                btn.textContent = label;
+                if (!quiet) {
+                    btn.disabled = false;
+                    btn.textContent = label;
+                }
             });
         }
 
@@ -669,6 +690,24 @@
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             check();
+        });
+
+        let typeTimer = null;
+        input.addEventListener('input', function () {
+            clearTimeout(typeTimer);
+            const code = norm(input.value);
+            if (!code || code === lastCode) return;
+            typeTimer = setTimeout(function () { check(true); }, 600);
+        });
+
+        setInterval(function () {
+            if (document.hidden || !lastCode) return;
+            if (document.activeElement === input && norm(input.value) !== lastCode) return;
+            check(true);
+        }, REFRESH_MS);
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden && lastCode) check(true);
         });
 
         (function init() {
