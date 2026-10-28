@@ -577,6 +577,51 @@
 
         .honeypot { position: absolute; left: -5000px; }
 
+        .form-row input[type="file"] { padding: 10px 12px; background: var(--white); cursor: pointer; }
+
+        .form-row input[type="file"]::file-selector-button {
+            border: 0;
+            background: var(--primary);
+            color: #fff;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-inline-end: 12px;
+            cursor: pointer;
+        }
+
+        .thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+
+        .thumb {
+            position: relative;
+            width: 92px;
+            height: 92px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #e3e8ee;
+            background: #fbfcfd;
+        }
+
+        .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .thumb button {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, .65);
+            color: #fff;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
         @media (max-width: 900px) {
             .form-card { grid-column: auto; }
         }
@@ -999,7 +1044,7 @@
             <div class="features-grid">
                 <div class="support-card form-card">
                     <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
-                    <p>اكتب اسمك ووصف الخطأ بس. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب.</p>
+                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب.</p>
                     <form id="bugForm" autocomplete="off" novalidate>
                         <div class="form-row">
                             <label for="bugName">اسمك *</label>
@@ -1013,6 +1058,12 @@
                         <div class="form-row">
                             <label for="bugContact">طريقة للتواصل (اختياري)</label>
                             <input id="bugContact" type="text" maxlength="80" placeholder="إيميل أو رقم — لو تحب نرد عليك">
+                        </div>
+                        <div class="form-row">
+                            <label for="bugShots">صور للمشكلة (اختياري)</label>
+                            <input id="bugShots" type="file" accept="image/*" multiple>
+                            <span class="form-hint">صورة الشاشة (Screenshot) بتوضّح الخطأ أسرع. تتصغّر تلقائياً قبل الإرسال — بحد أقصى 3 صور.</span>
+                            <div class="thumbs" id="bugThumbs"></div>
                         </div>
                         <input class="honeypot" id="bugWeb" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
                         <button type="submit" class="btn-primary" id="bugSend" style="font-size:18px; padding:13px 34px;">📨 إرسال البلاغ</button>
@@ -1193,19 +1244,130 @@
             const nameEl = document.getElementById('bugName');
             const textEl = document.getElementById('bugText');
             const contactEl = document.getElementById('bugContact');
+            const shotsEl = document.getElementById('bugShots');
+            const thumbsEl = document.getElementById('bugThumbs');
             const trapEl = document.getElementById('bugWeb');
             const btn = document.getElementById('bugSend');
             const status = document.getElementById('bugStatus');
+            const MAX_SHOTS = 3;
+            let shots = [];
 
             function say(msg, ok) {
                 status.textContent = msg;
                 status.className = 'form-status ' + (ok ? 'ok' : 'err');
             }
 
+            function clearShots() {
+                shots.forEach(function (s) { URL.revokeObjectURL(s.url); });
+                shots = [];
+                renderThumbs();
+                if (shotsEl) shotsEl.value = '';
+            }
+
+            function renderThumbs() {
+                if (!thumbsEl) return;
+                thumbsEl.innerHTML = '';
+                shots.forEach(function (s, i) {
+                    const box = document.createElement('div');
+                    box.className = 'thumb';
+                    const pic = document.createElement('img');
+                    pic.src = s.url;
+                    pic.alt = 'صورة ' + (i + 1);
+                    const del = document.createElement('button');
+                    del.type = 'button';
+                    del.textContent = '×';
+                    del.title = 'شيل الصورة';
+                    del.addEventListener('click', function () {
+                        URL.revokeObjectURL(s.url);
+                        shots.splice(i, 1);
+                        renderThumbs();
+                    });
+                    box.appendChild(pic);
+                    box.appendChild(del);
+                    thumbsEl.appendChild(box);
+                });
+            }
+
+            if (shotsEl) {
+                shotsEl.addEventListener('change', function () {
+                    const picked = Array.prototype.slice.call(shotsEl.files || []);
+                    let skipped = 0;
+                    picked.forEach(function (f) {
+                        if (!/^image\//.test(f.type) || shots.length >= MAX_SHOTS) { skipped++; return; }
+                        shots.push({ file: f, url: URL.createObjectURL(f) });
+                    });
+                    shotsEl.value = '';
+                    renderThumbs();
+                    if (skipped) say('بس 3 صور كحد أقصى، وصور فقط.', false);
+                });
+            }
+
+            function shrinkImage(file) {
+                return new Promise(function (resolve) {
+                    const pic = new Image();
+                    pic.onload = function () {
+                        const maxSide = 1600;
+                        let w = pic.naturalWidth;
+                        let h = pic.naturalHeight;
+                        if (!w || !h) { resolve(file); return; }
+                        const scale = Math.min(1, maxSide / Math.max(w, h));
+                        if (scale === 1 && file.size < 700 * 1024) { resolve(file); return; }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.round(w * scale);
+                        canvas.height = Math.round(h * scale);
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(pic, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(function (blob) {
+                            resolve(blob && blob.size < file.size ? blob : file);
+                        }, 'image/jpeg', 0.82);
+                    };
+                    pic.onerror = function () { resolve(file); };
+                    pic.src = URL.createObjectURL(file);
+                });
+            }
+
+            function uploadShot(blob, index) {
+                const ext = blob.type === 'image/png' ? 'png' : (blob.type === 'image/webp' ? 'webp' : 'jpg');
+                const name = 'bug-' + Date.now() + '-' + (index + 1) + '.' + ext;
+                return fetch(BUG_INBOX, {
+                    method: 'PUT',
+                    headers: { 'Filename': name, 'Title': 'Bug screenshot', 'Tags': 'camera' },
+                    body: blob
+                }).then(function (r) {
+                    if (!r.ok) throw r.status;
+                    return r.json();
+                }).then(function (j) {
+                    return j.attachment && j.attachment.url ? j.attachment.url : null;
+                });
+            }
+
+            function sendReport(name, problem, contact, links, shotsFailed) {
+                let body = 'بلاغ جديد من موقع POS Market BFO\n\n';
+                body += 'الاسم: ' + name + '\n';
+                if (contact) body += 'للتواصل: ' + contact + '\n';
+                body += '\n' + problem + '\n';
+                if (links.length) body += '\n📷 صور المشكلة:\n' + links.join('\n') + '\n';
+                else if (shotsFailed) body += '\n(كان فيه صور بس ما اترفعتش)\n';
+                body += '\n— ' + new Date().toLocaleString('ar-EG');
+
+                return fetch(BUG_INBOX, {
+                    method: 'POST',
+                    headers: {
+                        'Title': links.length ? 'New bug report + ' + links.length + (links.length === 1 ? ' photo' : ' photos') : 'New bug report',
+                        'Priority': '4',
+                        'Tags': 'bug'
+                    },
+                    body: body
+                });
+            }
+
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
                 if (trapEl && trapEl.value) {
                     form.reset();
+                    clearShots();
                     say('✅ وصل بلاغك، شكراً لك!', true);
                     return;
                 }
@@ -1225,30 +1387,49 @@
                     return;
                 }
 
-                let body = 'بلاغ جديد من موقع POS Market BFO\n\n';
-                body += 'الاسم: ' + name + '\n';
-                if (contact) body += 'للتواصل: ' + contact + '\n';
-                body += '\n' + problem + '\n\n';
-                body += '— ' + new Date().toLocaleString('ar-EG');
-
-                btn.disabled = true;
+                const toSend = shots.slice();
                 const label = btn.textContent;
+                btn.disabled = true;
                 btn.textContent = '⏳ جاري الإرسال…';
 
-                fetch(BUG_INBOX, {
-                    method: 'POST',
-                    headers: { 'Title': 'New bug report', 'Priority': '4', 'Tags': 'bug' },
-                    body: body
-                }).then(function (r) {
-                    if (!r.ok) throw r.status;
-                    form.reset();
-                    say('✅ وصل بلاغك، شكراً لك! هنشوفه في أقرب وقت.', true);
-                }).catch(function () {
-                    say('⚠️ ما قدرناش نرسل البلاغ. جرّب تاني، أو ابعتلنا على Discord أو Facebook من تحت.', false);
-                }).then(function () {
-                    btn.disabled = false;
-                    btn.textContent = label;
-                });
+                let uploaded = [];
+                let shotsFailed = false;
+
+                let chain = Promise.resolve();
+                if (toSend.length) {
+                    chain = Promise.all(toSend.map(function (s, i) {
+                        return shrinkImage(s.file)
+                            .then(function (blob) {
+                                btn.textContent = '⏳ رفع الصور… (' + (i + 1) + '/' + toSend.length + ')';
+                                return uploadShot(blob, i);
+                            })
+                            .then(function (url) {
+                                if (url) uploaded.push(url);
+                                else shotsFailed = true;
+                            })
+                            .catch(function () { shotsFailed = true; });
+                    }));
+                }
+
+                chain
+                    .then(function () {
+                        btn.textContent = '⏳ جاري الإرسال…';
+                        return sendReport(name, problem, contact, uploaded, shotsFailed);
+                    })
+                    .then(function (r) {
+                        if (!r.ok) throw r.status;
+                        form.reset();
+                        clearShots();
+                        if (shotsFailed) say('✅ وصل البلاغ، لكن الصور ما اترفعتش — جرّب صورة أصغر.', true);
+                        else say('✅ وصل بلاغك، شكراً لك! هنشوفه في أقرب وقت.', true);
+                    })
+                    .catch(function () {
+                        say('⚠️ ما قدرناش نرسل البلاغ. جرّب تاني، أو ابعتلنا على Discord أو Facebook من تحت.', false);
+                    })
+                    .then(function () {
+                        btn.disabled = false;
+                        btn.textContent = label;
+                    });
             });
         })();
 
