@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - POS Market BFO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --bg: #f0f2f5;
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .logo { font-weight: 800; font-size: 20px; color: var(--white); text-decoration: none; }
+
+        header nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            margin-inline-start: 16px;
+            opacity: .92;
+        }
+
+        header nav a:hover { opacity: 1; }
+
+        main {
+            flex: 1;
+            padding: 40px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .08);
+            max-width: 520px;
+            width: 100%;
+            padding: 30px;
+            border-top: 6px solid var(--primary);
+        }
+
+        h1 { font-size: 24px; margin-bottom: 8px; }
+
+        .sub { color: var(--gray); font-size: 14.5px; margin-bottom: 18px; line-height: 1.9; }
+
+        .code-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            border: 2px solid #e3e8ee;
+            border-radius: 10px;
+            background: #f3f6ff;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .code-chip b { color: var(--secondary); font-size: 17px; letter-spacing: 1px; direction: ltr; }
+
+        form { display: flex; flex-direction: column; gap: 10px; }
+
+        input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid #e3e8ee;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 16px;
+            background: #fbfcfd;
+            color: var(--dark);
+        }
+
+        input:focus { outline: none; border-color: var(--primary); background: var(--white); }
+
+        button {
+            border: 0;
+            background: var(--primary);
+            color: var(--white);
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 16px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button:hover:not(:disabled) { background: var(--primary-dark); }
+        button:disabled { opacity: .6; cursor: default; }
+
+        .status { margin-top: 12px; font-size: 14px; font-weight: 700; line-height: 1.9; }
+        .status.ok { color: #1d6b45; }
+        .status.err { color: #c0392b; }
+
+        .note { margin-top: 16px; font-size: 13px; color: var(--gray); line-height: 1.9; }
+        .note a { color: var(--primary); font-weight: 800; text-decoration: none; }
+
+        .alt { margin-top: 14px; font-size: 13.5px; color: var(--gray); }
+        .alt a { color: var(--primary); font-weight: 800; text-decoration: none; }
+
+        footer { padding: 18px; text-align: center; font-size: 12.5px; color: var(--gray); }
+        footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
+
+        @media (max-width: 520px) {
+            .card { padding: 22px 18px; }
+            header nav a { margin-inline-start: 0; margin-inline-end: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a class="logo" href="index.html">🛒 POS Market BFO</a>
+        <nav>
+            <a href="index.html">الرئيسية</a>
+            <a href="guide.html">📖 الدليل</a>
+            <a href="index.html#support">🐞 بلّغ عن خطأ</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="card">
+            <h1>🔐 تسجيل الدخول</h1>
+            <p class="sub">عشان تفتح بلاغك وتشوف الردود وتضيف كلام عليه، اكتب اسم المستخدم وكلمة السر اللي اخترتهم وقت الإرسال.</p>
+
+            <div class="code-chip" id="codeChip" hidden>
+                <span>البلاغ:</span>
+                <b id="codeLabel">BFO-0000</b>
+            </div>
+
+            <form id="loginForm" autocomplete="off" novalidate>
+                <input id="user" type="text" maxlength="30" placeholder="اسم المستخدم" aria-label="اسم المستخدم" spellcheck="false" autocomplete="username">
+                <input id="pass" type="password" maxlength="60" placeholder="كلمة السر" aria-label="كلمة السر" autocomplete="current-password">
+                <button type="submit" id="go">🔓 دخول وفتح البلاغ</button>
+            </form>
+
+            <p class="status" id="status"></p>
+
+            <p class="alt" id="alt" hidden></p>
+
+            <p class="note">
+                مش فاكر اسم المستخدم أو كلمة السر؟ مفيش استرجاع تلقائي — كلّم المطور على
+                <a href="https://www.facebook.com/profile.php?id=100047435572550&locale=ar_AR" target="_blank" rel="noopener">Facebook</a> أو
+                <a href="https://discord.com/channels/970119086493274132/970119086493274135" target="_blank" rel="noopener">Discord</a>
+                وقوله كود بلاغك.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <a href="index.html">الرئيسية</a> ·
+        <a href="guide.html">دليل الاستخدام</a> ·
+        <a href="follow.html">متابعة بلاغ</a>
+        <br>© 2026 POS Market BFO — عمر بن مامو
+    </footer>
+
+    <script>
+        const INBOX = 'https://ntfy.sh/posbfo-bug-reports-7qm4x2v9';
+
+        const input = document.getElementById('user');
+        const passEl = document.getElementById('pass');
+        const form = document.getElementById('loginForm');
+        const go = document.getElementById('go');
+        const statusEl = document.getElementById('status');
+        const altEl = document.getElementById('alt');
+        const codeChip = document.getElementById('codeChip');
+        const codeLabel = document.getElementById('codeLabel');
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+            });
+        }
+
+        function norm(raw) {
+            const s = (raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (!s) return null;
+            const rest = s.indexOf('BFO') === 0 ? s.slice(3) : s;
+            if (rest.length < 3 || rest.length > 8) return null;
+            return 'BFO-' + rest;
+        }
+
+        function hasCode(msg, code) {
+            return msg.toUpperCase().replace(/[^A-Z0-9]/g, '').indexOf(code.replace('-', '')) >= 0;
+        }
+
+        function nameOf(msg) {
+            const s = String(msg || '');
+            const u = s.match(/اسم المستخدم\s*[:：]\s*(.+)/);
+            if (u) return u[1].trim();
+            const n = s.match(/الاسم\s*[:：]\s*(.+)/);
+            return n ? n[1].trim() : '';
+        }
+
+        function lockOf(msg) {
+            const m = String(msg || '').match(/قفل البلاغ\s*[:：]\s*([0-9a-f]{16})\s*:\s*([0-9a-f]{64})/i);
+            return m ? { salt: m[1].toLowerCase(), hash: m[2].toLowerCase() } : null;
+        }
+
+        function unlockKey(code) { return 'bfo_unlock_' + code; }
+
+        function localLock(code) {
+            try {
+                const raw = localStorage.getItem('bfo_lock_' + code);
+                const m = raw && raw.match(/^([0-9a-f]{16}):([0-9a-f]{64})$/i);
+                return m ? { salt: m[1].toLowerCase(), hash: m[2].toLowerCase() } : null;
+            } catch (e) { return null; }
+        }
+
+        function sameName(a, b) {
+            const f = function (s) { return String(s || '').toLowerCase().replace(/\s+/g, ''); };
+            return f(a) === f(b);
+        }
+
+        function pbkdf2Hex(pass, salt) {
+            if (!(window.crypto && window.crypto.subtle)) return Promise.reject(new Error('no-subtle'));
+            const s = new Uint8Array(salt.match(/.{2}/g).map(function (h) { return parseInt(h, 16); }));
+            return crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveBits'])
+                .then(function (key) {
+                    return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: s, iterations: 150000, hash: 'SHA-256' }, key, 256);
+                })
+                .then(function (bits) {
+                    return Array.from(new Uint8Array(bits))
+                        .map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+                });
+        }
+
+        function findReport(rows, code) {
+            let found = null;
+            rows.forEach(function (j) {
+                if (j.message && j.message.indexOf('بلاغ جديد من موقع') === 0 && hasCode(j.message, code)) found = j;
+            });
+            return found;
+        }
+
+        function getInbox() {
+            return fetch(INBOX + '/json?poll=1&since=all', {
+                headers: { 'Accept': 'application/x-ndjson' },
+                cache: 'no-store'
+            }).then(function (r) {
+                if (!r.ok) throw r.status;
+                return r.text();
+            }).then(function (txt) {
+                const rows = [];
+                txt.split('\n').forEach(function (line) {
+                    if (!line.trim()) return;
+                    let j;
+                    try { j = JSON.parse(line); } catch (e) { return; }
+                    if (j.event === 'message' && j.message) rows.push(j);
+                });
+                return rows;
+            }).catch(function () { return null; });
+        }
+
+        function say(msg, ok) {
+            statusEl.textContent = msg;
+            statusEl.className = 'status ' + (ok ? 'ok' : 'err');
+        }
+
+        function goToReport(code, delay) {
+            setTimeout(function () {
+                location.replace('follow.html?code=' + encodeURIComponent(code));
+            }, delay || 700);
+        }
+
+        const queryCode = norm(new URLSearchParams(location.search).get('code'));
+
+        let savedCode = '';
+        try { savedCode = localStorage.getItem('bfo_last_code') || ''; } catch (e) {}
+        const code = queryCode || norm(savedCode);
+
+        let lock = null;
+        let lockName = '';
+        let busy = false;
+
+        function loadReport() {
+            return getInbox().then(function (rows) {
+                const rep = rows ? findReport(rows, code) : null;
+                if (rep) {
+                    if (!lock) lock = lockOf(rep.message);
+                    lockName = nameOf(rep.message);
+                }
+                return rows;
+            });
+        }
+
+        function openReport() {
+            say('البلاغ ده مش مقفول بكلمة سر — بنفتحه على طول…', true);
+            try { localStorage.setItem(unlockKey(code), '1'); } catch (e) {}
+            goToReport(code, 900);
+        }
+
+        function verify(user, pass) {
+            const label = go.textContent;
+            go.disabled = true;
+            go.textContent = '⏳ بنتأكد…';
+            say('', false);
+            pbkdf2Hex(pass, lock.salt).then(function (hash) {
+                if (hash !== lock.hash) throw new Error('wrong');
+                try {
+                    localStorage.setItem(unlockKey(code), '1');
+                    localStorage.setItem('bfo_user', user);
+                    localStorage.setItem('bfo_lock_' + code, lock.salt + ':' + lock.hash);
+                } catch (err) {}
+                passEl.value = '';
+                say('✅ تم الدخول — بنفتح بلاغك…', true);
+                goToReport(code, 600);
+            }).catch(function (err) {
+                say((err && err.message === 'no-subtle')
+                    ? '⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.'
+                    : '❌ كلمة السر غلط — جرّب تاني.', false);
+            }).then(function () {
+                go.disabled = false;
+                go.textContent = label;
+            });
+        }
+
+        (function init() {
+            let savedUser = '';
+            try { savedUser = localStorage.getItem('bfo_user') || ''; } catch (e) {}
+            if (savedUser) input.value = savedUser;
+
+            if (!code) {
+                say('مفيش بلاغ مفتوح — اكتب كود البلاغ في صفحة «متابعة البلاغ» الأول.', false);
+                altEl.hidden = false;
+                altEl.innerHTML = '<a href="follow.html">افتح صفحة متابعة البلاغ ←</a>';
+                go.disabled = true;
+                return;
+            }
+
+            codeChip.hidden = false;
+            codeLabel.textContent = code;
+            try { history.replaceState(null, '', 'login.html?code=' + encodeURIComponent(code)); } catch (e) {}
+
+            lock = localLock(code);
+            say('⏳ بنجيب بيانات البلاغ…', false);
+            loadReport().then(function (rows) {
+                if (!input.value && lockName) input.value = lockName;
+                if (lock) {
+                    say('', false);
+                    passEl.focus();
+                    return;
+                }
+                if (!rows) {
+                    say('⚠️ مش قادرين نجيب بيانات البلاغ دلوقتي — اتأكد من الإنترنت وجرّب تحديث الصفحة.', false);
+                    return;
+                }
+                openReport();
+            });
+        })();
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!code || busy) return;
+            const user = input.value.trim();
+            const pass = passEl.value;
+
+            if (!user) { say('اكتب اسم المستخدم.', false); input.focus(); return; }
+            if (!pass) { say('اكتب كلمة السر.', false); passEl.focus(); return; }
+
+            if (!lock) {
+                busy = true;
+                const label = go.textContent;
+                go.disabled = true;
+                go.textContent = '⏳ بنجيب بيانات البلاغ…';
+                loadReport().then(function (rows) {
+                    busy = false;
+                    go.disabled = false;
+                    go.textContent = label;
+                    if (!lock) {
+                        if (rows) openReport();
+                        else say('⚠️ مش قادرين نجيب بيانات البلاغ — اتأكد من الإنترنت وجرّب تاني.', false);
+                        return;
+                    }
+                    if (!input.value && lockName) input.value = lockName;
+                    if (lockName && !sameName(user, lockName)) {
+                        say('اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس اسم المستخدم اللي اخترته وقت الإرسال.', false);
+                        input.focus();
+                        return;
+                    }
+                    verify(user, pass);
+                });
+                return;
+            }
+
+            if (lockName && !sameName(user, lockName)) {
+                say('اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس اسم المستخدم اللي اخترته وقت الإرسال.', false);
+                input.focus();
+                return;
+            }
+            verify(user, pass);
+        });
+    </script>
+
+</body>
+</html>

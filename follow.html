@@ -244,6 +244,7 @@
         <nav>
             <a href="index.html">الرئيسية</a>
             <a href="guide.html">📖 الدليل</a>
+            <a href="login.html">🔐 دخول</a>
             <a href="index.html#support">🐞 بلّغ عن خطأ</a>
         </nav>
     </header>
@@ -473,6 +474,9 @@
             lockBox.hidden = open;
             addBox.hidden = !open;
             if (open) return;
+
+            if (askLogin(code)) return;
+
             lockStatus.textContent = '';
             lockStatus.style.color = '#6c757d';
             if (!lockUser.value && document.activeElement !== lockUser && document.activeElement !== lockPass) {
@@ -480,6 +484,17 @@
                 try { savedUser = localStorage.getItem('bfo_user') || ''; } catch (e) {}
                 lockUser.value = gate.name || savedUser;
             }
+        }
+
+        function askLogin(code) {
+            let tried = 0;
+            try {
+                tried = Number(sessionStorage.getItem('bfo_login_' + code) || 0);
+                sessionStorage.setItem('bfo_login_' + code, String(tried + 1));
+            } catch (e) { return false; }
+            if (tried > 0) return false;
+            location.replace('login.html?code=' + encodeURIComponent(code));
+            return true;
         }
 
         function jsonReplies(msg) {
@@ -543,8 +558,15 @@
             return items;
         }
 
-        function render(entry, repliesOk, report, items) {
+        function render(entry, repliesOk, report, items, locked) {
             let html = '';
+            if (locked) {
+                html += '<div class="status"><span class="badge">🔒 البلاغ ده مقفول</span>' +
+                        '<div class="reply">عشان تشوف البلاغ وتضيف كلام عليه، سجّل دخول باسم المستخدم وكلمة السر اللي اخترتهم وقت الإرسال.</div>' +
+                        '<div class="reply"><a href="login.html?code=' + encodeURIComponent(lastCode) + '">🔐 صفحة تسجيل الدخول</a></div></div>';
+                result.innerHTML = html;
+                return;
+            }
             if (!repliesOk) {
                 html += '<div class="status"><span class="badge">⚠️ ما قدرناش نقرا الردود دلوقتي</span>' +
                         '<div class="reply">اتأكد من الإنترنت وجرّب تاني بعد شوية.</div></div>';
@@ -646,7 +668,9 @@
                         });
                     }
                 }
-                render(entry, repliesOk || !!entry, report, items);
+                const lockNow = (report && lockOf(report.message)) || rememberedLock(code);
+                const locked = !!lockNow && !isUnlocked(code);
+                render(entry, repliesOk || !!entry, locked ? null : report, locked ? [] : items, locked);
                 applyGate(code, report);
             }).catch(function () {
                 if (!quiet) result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';

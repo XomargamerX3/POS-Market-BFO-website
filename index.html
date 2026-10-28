@@ -1173,6 +1173,7 @@
                             </div>
                             <p>احفظ الكود ده — تكتبه في <a id="bugFollow" href="follow.html">صفحة متابعة البلاغ</a> وتشوف رد المطور على مشكلتك.</p>
                             <p>واعمل حساب صغير: اسم المستخدم هو اللي كتبته فوق، وكلمة السر هي اللي اخترتها — بيهم بس تقدر تضيف كلام على البلاغ.</p>
+                            <p>ولو فتحت البلاغ من جهاز تاني، هيطلب منك تسجيل دخول من <a href="login.html">صفحة الدخول</a> الأول.</p>
                         </div>
                     </form>
                     <p class="follow-line">عندك كود بلاغ؟ <a href="follow.html">تابع الرد من هنا ←</a></p>
@@ -1675,6 +1676,7 @@
                             localStorage.setItem('bfo_last_code', code);
                             localStorage.setItem('bfo_user', user);
                             localStorage.setItem('bfo_lock_' + code, lock);
+                            localStorage.setItem('bfo_unlock_' + code, '1');
                         } catch (err) {}
                         if (shotsFailed) say('⚠️ وصل البلاغ، لكن الصور ما اترفعتش — جرّب صورة أصغر.', true);
                     })
