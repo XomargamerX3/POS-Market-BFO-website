@@ -203,6 +203,7 @@
 
     <script>
         const REPLIES_URL = 'https://raw.githubusercontent.com/XomargamerX3/POS-Market-BFO-website/main/replies.json';
+        const REPLIES_API = 'https://api.github.com/repos/XomargamerX3/POS-Market-BFO-website/contents/replies.json?ref=main';
         const INBOX = 'https://ntfy.sh/posbfo-bug-reports-7qm4x2v9';
 
         const input = document.getElementById('code');
@@ -230,11 +231,21 @@
         }
 
         function getReplies() {
-            return fetch(REPLIES_URL + '?v=' + Date.now(), { cache: 'no-store' })
-                .then(function (r) {
-                    if (!r.ok) throw r.status;
-                    return r.json();
-                });
+            return fetch(REPLIES_API, {
+                headers: { 'Accept': 'application/vnd.github.raw' },
+                cache: 'no-store'
+            }).then(function (r) {
+                if (!r.ok) throw r.status;
+                return r.text();
+            }).then(function (txt) {
+                return JSON.parse(txt);
+            }).catch(function () {
+                return fetch(REPLIES_URL + '?v=' + Date.now(), { cache: 'no-store' })
+                    .then(function (r) {
+                        if (!r.ok) throw r.status;
+                        return r.json();
+                    });
+            });
         }
 
         function findReport(code) {
