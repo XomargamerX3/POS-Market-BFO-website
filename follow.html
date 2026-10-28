@@ -77,7 +77,7 @@
 
         form { display: flex; gap: 10px; flex-wrap: wrap; }
 
-        input {
+        #code {
             flex: 1;
             min-width: 200px;
             padding: 13px 16px;
@@ -94,7 +94,7 @@
             color: var(--dark);
         }
 
-        input:focus { outline: none; border-color: var(--primary); background: var(--white); }
+        #code:focus { outline: none; border-color: var(--primary); background: var(--white); }
 
         button {
             border: 0;
@@ -156,6 +156,47 @@
 
         .empty { color: #c0392b; font-weight: 700; line-height: 1.9; }
 
+        .thread { margin-top: 12px; border-top: 1px dashed #d7dde5; padding-top: 10px; }
+        .thread .msg { font-size: 13.5px; line-height: 1.9; color: #343a40; margin-bottom: 10px; }
+        .thread .who { display: block; font-size: 12px; font-weight: 800; color: var(--gray); margin-bottom: 2px; }
+        .thread .msg a { color: var(--primary); word-break: break-all; }
+
+        #addBox { margin-top: 18px; border-top: 2px solid #eef1f5; padding-top: 16px; }
+        #addBox h2 { font-size: 16px; margin-bottom: 6px; }
+        .add-hint { font-size: 13px; color: var(--gray); line-height: 1.9; margin-bottom: 10px; }
+        #addText {
+            width: 100%;
+            min-height: 92px;
+            padding: 12px 14px;
+            border: 2px solid #e3e8ee;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.8;
+            background: #fbfcfd;
+            color: var(--dark);
+            resize: vertical;
+        }
+        #addText:focus { outline: none; border-color: var(--primary); background: var(--white); }
+        #addShots { margin-top: 8px; width: 100%; font-family: inherit; font-size: 13px; color: var(--gray); }
+        .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .thumb { position: relative; width: 76px; height: 76px; border-radius: 10px; overflow: hidden; border: 2px solid #e3e8ee; }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .thumb button {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 12px;
+            line-height: 18px;
+            background: rgba(0, 0, 0, .55);
+        }
+        #addSend { margin-top: 12px; width: 100%; }
+        .add-status { margin-top: 10px; font-size: 13.5px; font-weight: 700; line-height: 1.9; }
+
         .note-box { margin-top: 14px; font-size: 13px; color: var(--gray); line-height: 1.9; }
         .note-box a { color: var(--primary); font-weight: 800; }
 
@@ -191,6 +232,16 @@
                 <button type="submit" id="go">اعرض الرد</button>
             </form>
             <div id="result"></div>
+
+            <section id="addBox" hidden>
+                <h2>✍️ ضيف كلام على نفس البلاغ</h2>
+                <p class="add-hint">عندك تفاصيل أكتر أو صورة توضّح المشكلة؟ ابعتها هنا — بتوصل للمطور على نفس البلاغ، ومش محتاج تبعت بلاغ جديد.</p>
+                <textarea id="addText" rows="4" maxlength="800" placeholder="اكتب التفاصيل الإضافية..."></textarea>
+                <input id="addShots" type="file" accept="image/*" multiple>
+                <div class="thumbs" id="addThumbs"></div>
+                <button type="button" id="addSend">📨 ابعت على نفس البلاغ</button>
+                <p class="add-status" id="addStatus"></p>
+            </section>
         </div>
     </main>
 
@@ -210,6 +261,16 @@
         const btn = document.getElementById('go');
         const form = document.getElementById('followForm');
         const result = document.getElementById('result');
+        const addBox = document.getElementById('addBox');
+        const addText = document.getElementById('addText');
+        const addShots = document.getElementById('addShots');
+        const addThumbs = document.getElementById('addThumbs');
+        const addSend = document.getElementById('addSend');
+        const addStatus = document.getElementById('addStatus');
+
+        const ADD_PREFIX = 'إضافة على البلاغ';
+        const MAX_SHOTS = 3;
+        let shots = [];
 
         const BADGES = {
             fixed: ['✅ تم إصلاح المشكلة', 'fixed'],
@@ -316,6 +377,7 @@
             rows.forEach(function (j) {
                 if (j.message.indexOf('بلاغ جديد من موقع') === 0) return;
                 if (j.message.indexOf('You received a file') === 0) return;
+                if (j.message.indexOf(ADD_PREFIX) === 0) return;
                 const js = jsonReplies(j);
                 if (js) {
                     if (js[code]) found = js[code];
@@ -334,7 +396,28 @@
             return found;
         }
 
-        function render(entry, repliesOk, report) {
+        function findAdditions(rows, code) {
+            const out = [];
+            rows.forEach(function (j) {
+                if (j.message.indexOf(ADD_PREFIX) !== 0) return;
+                if (!hasCode(j.message, code)) return;
+                let body = j.message.slice(ADD_PREFIX.length)
+                    .replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
+                    .replace(/^[\s:\-–—]+/, '');
+                const cut = body.indexOf('📷');
+                let text = (cut >= 0 ? body.slice(0, cut) : body).replace(/—[^\n]*$/, '').trim();
+                let photos = [];
+                if (cut >= 0) {
+                    photos = body.slice(cut).split('\n')
+                        .map(function (l) { return l.trim(); })
+                        .filter(function (l) { return /^https?:\/\//.test(l); });
+                }
+                out.push({ text: text, photos: photos, date: dateOf(j.time) });
+            });
+            return out;
+        }
+
+        function render(entry, repliesOk, report, additions) {
             let html = '';
             if (!repliesOk) {
                 html += '<div class="status"><span class="badge">⚠️ ما قدرناش نقرا الردود دلوقتي</span>' +
@@ -350,8 +433,18 @@
                 html += '<div class="status"><span class="badge">⏳ لسه مفيش رد على الكود ده</span>' +
                         '<div class="reply">لو الكود صح ولسه مفيش رد، ارجع تاني بعد شوية — الردود بتتضاف بعد ما المشكلة تتحل.</div></div>';
             }
+            let thread = '';
+            (additions || []).forEach(function (a) {
+                thread += '<div class="msg"><span class="who">📎 إضافة على البلاغ — ' + esc(a.date) + '</span>' +
+                          (a.text ? esc(a.text) : '') + a.photos.map(function (p) {
+                              return '<div><a href="' + esc(p) + '" target="_blank" rel="noopener">' + esc(p) + '</a></div>';
+                          }).join('') + '</div>';
+            });
+            if (thread) thread = '<div class="thread">' + thread + '</div>';
             if (report) {
-                html += '<div class="report"><h3>📄 البلاغ اللي بعته (محفوظ مؤقتاً عندنا)</h3><pre>' + esc(report.message) + '</pre></div>';
+                html += '<div class="report"><h3>📄 البلاغ اللي بعته (محفوظ مؤقتاً عندنا)</h3><pre>' + esc(report.message) + '</pre>' + thread + '</div>';
+            } else if (thread) {
+                html += '<div class="report"><h3>📄 إضافاتك على البلاغ</h3>' + thread + '</div>';
             }
             html += '<p class="note-box">الكود زي <b>BFO-4821</b> — 4 حروف وأرقام بعد BFO. لو ضاع منك، ' +
                     '<a href="index.html#support">ابعت بلاغ جديد</a> وهتاخد كود جديد.</p>';
@@ -385,9 +478,11 @@
             }).then(function (rows) {
                 let entry = null;
                 let report = null;
+                let additions = [];
                 if (rows) {
                     report = findReport(rows, code);
                     entry = findInboxReply(rows, code);
+                    additions = findAdditions(rows, code);
                 }
                 if (!entry && replies) {
                     if (replies[code]) entry = replies[code];
@@ -398,7 +493,8 @@
                         }
                     }
                 }
-                render(entry, repliesOk || !!entry, report);
+                render(entry, repliesOk || !!entry, report, additions);
+                addBox.hidden = false;
             }).catch(function () {
                 result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';
             }).then(function () {
@@ -406,6 +502,142 @@
                 btn.textContent = label;
             });
         }
+
+        function shrinkImage(file) {
+            return new Promise(function (resolve) {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = function () {
+                    URL.revokeObjectURL(url);
+                    const max = 1600;
+                    const scale = Math.min(1, max / Math.max(img.width, img.height));
+                    if (scale === 1 && file.size < 700 * 1024) { resolve(file); return; }
+                    const c = document.createElement('canvas');
+                    c.width = Math.round(img.width * scale);
+                    c.height = Math.round(img.height * scale);
+                    const ctx = c.getContext('2d');
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(0, 0, c.width, c.height);
+                    ctx.drawImage(img, 0, 0, c.width, c.height);
+                    c.toBlob(function (b) { resolve(b || file); }, 'image/jpeg', 0.82);
+                };
+                img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+                img.src = url;
+            });
+        }
+
+        function uploadShot(blob, index) {
+            const ext = blob.type === 'image/png' ? 'png' : (blob.type === 'image/webp' ? 'webp' : 'jpg');
+            const name = 'note-' + Date.now() + '-' + (index + 1) + '.' + ext;
+            return fetch(INBOX, {
+                method: 'PUT',
+                headers: { 'Filename': name, 'Title': 'Bug follow-up photo', 'Tags': 'camera' },
+                body: blob
+            }).then(function (r) {
+                if (!r.ok) throw r.status;
+                return r.json();
+            }).then(function (j) {
+                return (j.attachment && j.attachment.url) ? j.attachment.url : null;
+            });
+        }
+
+        function renderThumbs() {
+            addThumbs.innerHTML = '';
+            shots.forEach(function (f, i) {
+                const d = document.createElement('div');
+                d.className = 'thumb';
+                const im = document.createElement('img');
+                im.src = URL.createObjectURL(f);
+                im.alt = 'صورة ' + (i + 1);
+                const x = document.createElement('button');
+                x.type = 'button';
+                x.textContent = '×';
+                x.addEventListener('click', function () { shots.splice(i, 1); renderThumbs(); });
+                d.appendChild(im);
+                d.appendChild(x);
+                addThumbs.appendChild(d);
+            });
+        }
+
+        function clearShots() {
+            shots = [];
+            addShots.value = '';
+            renderThumbs();
+        }
+
+        addShots.addEventListener('change', function () {
+            const picked = Array.prototype.slice.call(addShots.files || []);
+            addShots.value = '';
+            const imgs = picked.filter(function (f) { return /^image\//.test(f.type); });
+            imgs.forEach(function (f) {
+                if (shots.length < MAX_SHOTS) shots.push(f);
+            });
+            renderThumbs();
+            if (imgs.length < picked.length) {
+                addStatus.style.color = '#c0392b';
+                addStatus.textContent = 'صور فقط، وبحد أقصى 3.';
+            }
+        });
+
+        addSend.addEventListener('click', function () {
+            const code = norm(input.value);
+            const text = addText.value.trim();
+            if (!code) {
+                addStatus.style.color = '#c0392b';
+                addStatus.textContent = 'اكتب كود البلاغ فوق الأول.';
+                return;
+            }
+            if (!text && !shots.length) {
+                addStatus.style.color = '#c0392b';
+                addStatus.textContent = 'اكتب تفاصيل أو اختار صورة الأول.';
+                return;
+            }
+            addSend.disabled = true;
+            const label = addSend.textContent;
+            addStatus.style.color = '#6c757d';
+            addStatus.textContent = '⏳ بنجهّز الصور…';
+
+            const links = [];
+            let failed = 0;
+            const jobs = shots.map(function (f, i) {
+                return shrinkImage(f)
+                    .then(function (blob) { return uploadShot(blob, i); })
+                    .then(function (url) { if (url) links.push(url); })
+                    .catch(function () { failed++; });
+            });
+
+            Promise.all(jobs).then(function () {
+                addStatus.textContent = '⏳ بنرسل…';
+                let body = ADD_PREFIX + ' ' + code + '\n';
+                if (text) body += '\n' + text;
+                if (links.length) body += '\n\n📷 صور:\n' + links.join('\n');
+                if (failed) body += '\n\n(كان فيه صور بس ما اترفعتش)';
+                body += '\n\n— ' + new Date().toLocaleString('ar-EG');
+                return fetch(INBOX, {
+                    method: 'POST',
+                    headers: {
+                        'Title': 'Follow-up on ' + code,
+                        'Priority': '4',
+                        'Tags': 'speech_balloon'
+                    },
+                    body: body
+                }).then(function (r) {
+                    if (!r.ok) throw r.status;
+                });
+            }).then(function () {
+                addStatus.style.color = '#1d6b45';
+                addStatus.textContent = '✅ وصلت للمطور على نفس البلاغ.';
+                addText.value = '';
+                clearShots();
+                check();
+            }).catch(function () {
+                addStatus.style.color = '#c0392b';
+                addStatus.textContent = '⚠️ ما قدرناش نبعت — اتأكد من الإنترنت وجرّب تاني.';
+            }).then(function () {
+                addSend.disabled = false;
+                addSend.textContent = label;
+            });
+        });
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
