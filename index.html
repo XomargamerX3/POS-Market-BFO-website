@@ -526,6 +526,61 @@
             transform: translateY(-2px);
         }
 
+        /* ====================== فورم الإبلاغ ====================== */
+        .form-card {
+            grid-column: 1 / -1;
+            max-width: 820px;
+            margin: 0 auto;
+            width: 100%;
+            border-top: 6px solid var(--primary);
+        }
+
+        .form-row { margin-bottom: 16px; }
+
+        .form-row label {
+            display: block;
+            font-weight: 800;
+            font-size: 15px;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .form-row input,
+        .form-row textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 2px solid #e3e8ee;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            background: #fbfcfd;
+            color: var(--dark);
+        }
+
+        .form-row input:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+        }
+
+        .form-row textarea { min-height: 150px; resize: vertical; }
+
+        .form-hint { display: block; margin-top: 6px; font-size: 12.5px; color: var(--gray); }
+
+        .form-status { display: none; margin-top: 14px; font-size: 15px; font-weight: 800; }
+
+        .form-status.ok { display: block; color: #27ae60; }
+
+        .form-status.err { display: block; color: #e74c3c; }
+
+        .honeypot { position: absolute; left: -5000px; }
+
+        @media (max-width: 900px) {
+            .form-card { grid-column: auto; }
+        }
+
         .guide-banner {
             max-width: 1000px;
             margin: 0 auto 40px;
@@ -942,8 +997,31 @@
             <p class="section-subtitle">وجدت مشكلة؟ أخبرنا بها بالتفصيل ونرجع لك بالجواب</p>
 
             <div class="features-grid">
+                <div class="support-card form-card">
+                    <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
+                    <p>اكتب اسمك ووصف الخطأ بس. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب.</p>
+                    <form id="bugForm" autocomplete="off" novalidate>
+                        <div class="form-row">
+                            <label for="bugName">اسمك *</label>
+                            <input id="bugName" type="text" maxlength="60" placeholder="مثال: عمر">
+                        </div>
+                        <div class="form-row">
+                            <label for="bugText">وصف الخطأ *</label>
+                            <textarea id="bugText" maxlength="1500" placeholder="إيه اللي حصل؟ وإيه اللي كنت متوقعه؟"></textarea>
+                            <span class="form-hint">كل ما تكتب تفاصيل أكتر (رقم الإصدار، اللغة، الخطوات اللي عملتها) كل ما الحل يكون أسرع.</span>
+                        </div>
+                        <div class="form-row">
+                            <label for="bugContact">طريقة للتواصل (اختياري)</label>
+                            <input id="bugContact" type="text" maxlength="80" placeholder="إيميل أو رقم — لو تحب نرد عليك">
+                        </div>
+                        <input class="honeypot" id="bugWeb" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+                        <button type="submit" class="btn-primary" id="bugSend" style="font-size:18px; padding:13px 34px;">📨 إرسال البلاغ</button>
+                        <p class="form-status" id="bugStatus" role="status"></p>
+                    </form>
+                </div>
+
                 <div class="support-card">
-                    <h3>🐞 بلّغ عن خطأ على GitHub</h3>
+                    <h3>🐞 عندك حساب GitHub؟</h3>
                     <p>أفضل طريقة: اكتب وصف المشكلة في Issues، واجتمع كل مرة في مكان واحد مع الحل.</p>
                     <span class="chip">الإصدار</span>
                     <span class="chip">اللغة</span>
@@ -1106,6 +1184,73 @@
                 setText('latest-version', 'عند الطلب');
                 setText('file-size', 'يُسلَّم من المطور');
             });
+
+        // ===== إرسال بلاغ خطأ من غير حساب =====
+        const BUG_INBOX = 'https://ntfy.sh/posbfo-bug-reports-7qm4x2v9';
+        (function () {
+            const form = document.getElementById('bugForm');
+            if (!form) return;
+            const nameEl = document.getElementById('bugName');
+            const textEl = document.getElementById('bugText');
+            const contactEl = document.getElementById('bugContact');
+            const trapEl = document.getElementById('bugWeb');
+            const btn = document.getElementById('bugSend');
+            const status = document.getElementById('bugStatus');
+
+            function say(msg, ok) {
+                status.textContent = msg;
+                status.className = 'form-status ' + (ok ? 'ok' : 'err');
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (trapEl && trapEl.value) {
+                    form.reset();
+                    say('✅ وصل بلاغك، شكراً لك!', true);
+                    return;
+                }
+
+                const name = (nameEl.value || '').trim();
+                const problem = (textEl.value || '').trim();
+                const contact = (contactEl.value || '').trim();
+
+                if (!name) {
+                    say('اكتب اسمك الأول.', false);
+                    nameEl.focus();
+                    return;
+                }
+                if (problem.length < 5) {
+                    say('اكتب وصف الخطأ (5 حروف على الأقل).', false);
+                    textEl.focus();
+                    return;
+                }
+
+                let body = 'بلاغ جديد من موقع POS Market BFO\n\n';
+                body += 'الاسم: ' + name + '\n';
+                if (contact) body += 'للتواصل: ' + contact + '\n';
+                body += '\n' + problem + '\n\n';
+                body += '— ' + new Date().toLocaleString('ar-EG');
+
+                btn.disabled = true;
+                const label = btn.textContent;
+                btn.textContent = '⏳ جاري الإرسال…';
+
+                fetch(BUG_INBOX, {
+                    method: 'POST',
+                    headers: { 'Title': 'New bug report', 'Priority': '4', 'Tags': 'bug' },
+                    body: body
+                }).then(function (r) {
+                    if (!r.ok) throw r.status;
+                    form.reset();
+                    say('✅ وصل بلاغك، شكراً لك! هنشوفه في أقرب وقت.', true);
+                }).catch(function () {
+                    say('⚠️ ما قدرناش نرسل البلاغ. جرّب تاني، أو ابعتلنا على Discord أو Facebook من تحت.', false);
+                }).then(function () {
+                    btn.disabled = false;
+                    btn.textContent = label;
+                });
+            });
+        })();
 
         // ===== تمرير سلس =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
