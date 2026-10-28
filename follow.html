@@ -236,11 +236,11 @@
         <div class="card">
             <h1>🔎 متابعة البلاغ</h1>
             <p class="sub">
-                اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-4821</b>) وشوف رد المطور عليه.
+                اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR52</b>) وشوف رد المطور عليه.
                 الكود بيتبعت جوه البلاغ نفسه كمان.
             </p>
             <form id="followForm" autocomplete="off" novalidate>
-                <input id="code" type="text" maxlength="12" placeholder="BFO-4821" aria-label="كود البلاغ" spellcheck="false">
+                <input id="code" type="text" maxlength="14" placeholder="BFO-OMAR52" aria-label="كود البلاغ" spellcheck="false">
                 <button type="submit" id="go">اعرض الرد</button>
             </form>
             <div id="result"></div>
@@ -298,9 +298,10 @@
 
         function norm(raw) {
             const s = (raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-            if (s.length === 4) return 'BFO-' + s;
-            if (s.indexOf('BFO') === 0 && s.length === 7) return 'BFO-' + s.slice(3);
-            return null;
+            if (!s) return null;
+            const rest = s.indexOf('BFO') === 0 ? s.slice(3) : s;
+            if (rest.length < 4 || rest.length > 8) return null;
+            return 'BFO-' + rest;
         }
 
         function getReplies() {
@@ -460,7 +461,7 @@
             } else if (thread) {
                 html += '<div class="report"><h3>📄 إضافاتك على البلاغ</h3>' + thread + '</div>';
             }
-            html += '<p class="note-box">الكود زي <b>BFO-4821</b> — 4 حروف وأرقام بعد BFO. لو ضاع منك، ' +
+            html += '<p class="note-box">الكود بيبدأ بـ <b>BFO</b> وبعده اسمك بحروف إنجليزي وحرفين زيادة — زي <b>BFO-OMAR52</b>. لو ضاع منك، ' +
                     '<a href="index.html#support">ابعت بلاغ جديد</a> وهتاخد كود جديد.</p>';
             result.innerHTML = html;
         }
@@ -468,7 +469,7 @@
         function check() {
             const code = norm(input.value);
             if (!code) {
-                result.innerHTML = '<p class="empty">الكود مش شكله صح — اكتبه زي BFO-4821.</p>';
+                result.innerHTML = '<p class="empty">الكود مش شكله صح — اكتبه زي BFO-OMAR52.</p>';
                 input.focus();
                 return;
             }
@@ -508,7 +509,7 @@
                     else {
                         const keys = Object.keys(replies);
                         for (let i = 0; i < keys.length; i++) {
-                            if (keys[i].toUpperCase() === code) { entry = replies[keys[i]]; break; }
+                            if (norm(keys[i]) === code) { entry = replies[keys[i]]; break; }
                         }
                     }
                     if (entry) {

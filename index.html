@@ -1091,7 +1091,7 @@
             <div class="features-grid">
                 <div class="support-card form-card">
                     <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
-                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وبعد الإرسال هتاخد كود تشوف بيه رد المطور.</p>
+                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وبعد الإرسال هتاخد كود فيه اسمك، تشوف بيه رد المطور.</p>
                     <form id="bugForm" autocomplete="off" novalidate>
                         <div class="form-row">
                             <label for="bugName">اسمك *</label>
@@ -1314,14 +1314,34 @@
             const MAX_SHOTS = 3;
             let shots = [];
 
-            function makeCode() {
+            const AR2LAT = {
+                'ا': 'A', 'أ': 'A', 'إ': 'A', 'آ': 'A', 'ء': '', 'ؤ': 'W', 'ئ': 'Y', 'ب': 'B', 'ت': 'T',
+                'ث': 'T', 'ج': 'G', 'ح': 'H', 'خ': 'K', 'د': 'D', 'ذ': 'Z', 'ر': 'R', 'ز': 'Z', 'س': 'S',
+                'ش': 'CH', 'ص': 'S', 'ض': 'D', 'ط': 'T', 'ظ': 'Z', 'ع': 'A', 'غ': 'G', 'ف': 'F', 'ق': 'Q',
+                'ك': 'K', 'ل': 'L', 'م': 'M', 'ن': 'N', 'ه': 'H', 'ة': 'A', 'و': 'W', 'ي': 'Y', 'ى': 'Y',
+                'ژ': 'J', 'ڤ': 'V', 'پ': 'P', 'گ': 'G'
+            };
+
+            function latinName(name) {
+                let out = '';
+                String(name || '').split('').forEach(function (ch) {
+                    const up = ch.toUpperCase();
+                    if (/[A-Z0-9]/.test(up)) out += up;
+                    else if (AR2LAT[ch]) out += AR2LAT[ch];
+                });
+                return out.replace(/[^A-Z0-9]/g, '').slice(0, 6);
+            }
+
+            function makeCode(name) {
                 const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
                 const buf = new Uint8Array(4);
                 if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(buf);
                 else for (let i = 0; i < 4; i++) buf[i] = Math.floor(Math.random() * 256);
                 let out = '';
                 for (let i = 0; i < 4; i++) out += chars[buf[i] % chars.length];
-                return 'BFO-' + out;
+                const latin = latinName(name);
+                if (!latin) return 'BFO-' + out;
+                return 'BFO-' + latin + out.slice(0, 2);
             }
 
             function showDone(code) {
@@ -1492,7 +1512,7 @@
                 }
 
                 const toSend = shots.slice();
-                const code = makeCode();
+                const code = makeCode(name);
                 doneBox.className = 'done-box';
                 status.textContent = '';
                 status.className = 'form-status';
