@@ -1118,7 +1118,7 @@
             <div class="features-grid">
                 <div class="support-card form-card">
                     <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
-                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وانت اللي تختار كود المتابعة بنفسك، تشوف بيه رد المطور.</p>
+                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وانت اللي تختار كود المتابعة وكلمة سرك، وبيهم بس تقدر تضيف على بلاغك وتشوف رد المطور.</p>
                     <form id="bugForm" autocomplete="off" novalidate>
                         <div class="form-row">
                             <label for="bugName">اسمك *</label>
@@ -1131,6 +1131,15 @@
                                 <input id="bugCodeInput" type="text" maxlength="11" placeholder="اكتب اسمك هنا" spellcheck="false" autocomplete="off">
                             </div>
                             <span class="form-hint">«BFO-» مكتوبة جاهزة — اكتب بعدها أي اسم تحبه (عربي أو إنجليزي، الموقع يحوّله لحروف إنجليزي) وتقدر تزوّد رقم بعده. ده الكود اللي هتتابع بيه بلاغك. لو سيبتها فاضية، الموقع يجيبلك كود لوحده.</span>
+                        </div>
+                        <div class="form-row">
+                            <label for="bugPass">كلمة السر *</label>
+                            <input id="bugPass" type="password" maxlength="60" placeholder="4 حروف أو أرقام على الأقل" autocomplete="new-password">
+                        </div>
+                        <div class="form-row">
+                            <label for="bugPass2">تأكيد كلمة السر *</label>
+                            <input id="bugPass2" type="password" maxlength="60" placeholder="اكتبها تاني" autocomplete="new-password">
+                            <span class="form-hint">كلمة السر دي تمنع أي حد تاني يضيف كلام على بلاغك — انت بس اللي تعرفها. واسمك اللي فوق هو اسم المستخدم بتاعك.</span>
                         </div>
                         <div class="form-row">
                             <label for="bugText">وصف الخطأ *</label>
@@ -1158,6 +1167,7 @@
                                 <button type="button" class="copy-btn" id="bugCopy">📋 نسخ</button>
                             </div>
                             <p>احفظ الكود ده — تكتبه في <a id="bugFollow" href="follow.html">صفحة متابعة البلاغ</a> وتشوف رد المطور على مشكلتك.</p>
+                            <p>واعمل حساب صغير: اسم المستخدم هو <b>اسمك اللي فوق</b>، وكلمة السر هي اللي اخترتها — بيهم بس تقدر تضيف كلام على البلاغ.</p>
                         </div>
                     </form>
                     <p class="follow-line">عندك كود بلاغ؟ <a href="follow.html">تابع الرد من هنا ←</a></p>
@@ -1336,6 +1346,8 @@
             if (!form) return;
             const nameEl = document.getElementById('bugName');
             const codeInputEl = document.getElementById('bugCodeInput');
+            const passEl = document.getElementById('bugPass');
+            const pass2El = document.getElementById('bugPass2');
             const textEl = document.getElementById('bugText');
             const contactEl = document.getElementById('bugContact');
             const shotsEl = document.getElementById('bugShots');
@@ -1395,6 +1407,27 @@
                     const clean = codeChars(this.value);
                     if (this.value !== clean) this.value = clean;
                 });
+            }
+
+            function hexSalt() {
+                const b = new Uint8Array(8);
+                if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(b);
+                else for (let i = 0; i < 8; i++) b[i] = Math.floor(Math.random() * 256);
+                return Array.from(b).map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+            }
+
+            function pbkdf2Hex(pass, salt) {
+                if (!(window.crypto && window.crypto.subtle)) return Promise.reject(new Error('no-subtle'));
+                const enc = new TextEncoder();
+                const s = new Uint8Array(salt.match(/.{2}/g).map(function (h) { return parseInt(h, 16); }));
+                return crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveBits'])
+                    .then(function (key) {
+                        return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: s, iterations: 150000, hash: 'SHA-256' }, key, 256);
+                    })
+                    .then(function (bits) {
+                        return Array.from(new Uint8Array(bits))
+                            .map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+                    });
             }
 
             function showDone(code) {
@@ -1519,10 +1552,11 @@
                 });
             }
 
-            function sendReport(name, problem, contact, links, shotsFailed, code) {
+            function sendReport(name, problem, contact, links, shotsFailed, code, lock) {
                 let body = 'بلاغ جديد من موقع POS Market BFO\n\n';
                 body += 'كود البلاغ: ' + code + '\n';
                 body += 'الاسم: ' + name + '\n';
+                if (lock) body += '🔒 قفل البلاغ: ' + lock + '\n';
                 if (contact) body += 'للتواصل: ' + contact + '\n';
                 body += '\n' + problem + '\n';
                 if (links.length) body += '\n📷 صور المشكلة:\n' + links.join('\n') + '\n';
@@ -1551,6 +1585,8 @@
 
                 const name = (nameEl.value || '').trim();
                 const typed = typedCode(codeInputEl ? codeInputEl.value : '');
+                const pass = (passEl.value || '');
+                const pass2 = (pass2El.value || '');
                 const problem = (textEl.value || '').trim();
                 const contact = (contactEl.value || '').trim();
 
@@ -1562,6 +1598,16 @@
                 if (typed && typed.length < 3) {
                     say('كود المتابعة لازم 3 حروف على الأقل بعد BFO- (حروف إنجليزي أو أرقام).', false);
                     codeInputEl.focus();
+                    return;
+                }
+                if (pass.length < 4) {
+                    say('كلمة السر لازم 4 حروف أو أرقام على الأقل.', false);
+                    passEl.focus();
+                    return;
+                }
+                if (pass !== pass2) {
+                    say('كلمة السر والتأكيد مش زي بعض — اكتبهم تاني.', false);
+                    pass2El.focus();
                     return;
                 }
                 if (problem.length < 5) {
@@ -1578,6 +1624,10 @@
                 const label = btn.textContent;
                 btn.disabled = true;
                 btn.textContent = '⏳ جاري الإرسال…';
+                const salt = hexSalt();
+
+                pbkdf2Hex(pass, salt).then(function (hash) {
+                const lock = salt + ':' + hash;
 
                 let uploaded = [];
                 let shotsFailed = false;
@@ -1601,14 +1651,18 @@
                 chain
                     .then(function () {
                         btn.textContent = '⏳ جاري الإرسال…';
-                        return sendReport(name, problem, contact, uploaded, shotsFailed, code);
+                        return sendReport(name, problem, contact, uploaded, shotsFailed, code, lock);
                     })
                     .then(function (r) {
                         if (!r.ok) throw r.status;
                         form.reset();
                         clearShots();
                         showDone(code);
-                        try { localStorage.setItem('bfo_last_code', code); } catch (err) {}
+                        try {
+                            localStorage.setItem('bfo_last_code', code);
+                            localStorage.setItem('bfo_user', name);
+                            localStorage.setItem('bfo_lock_' + code, lock);
+                        } catch (err) {}
                         if (shotsFailed) say('⚠️ وصل البلاغ، لكن الصور ما اترفعتش — جرّب صورة أصغر.', true);
                     })
                     .catch(function () {
@@ -1618,6 +1672,11 @@
                         btn.disabled = false;
                         btn.textContent = label;
                     });
+                }).catch(function () {
+                    btn.disabled = false;
+                    btn.textContent = label;
+                    say('⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.', false);
+                });
             });
         })();
 

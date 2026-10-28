@@ -173,6 +173,22 @@
         .bubble .who { display: block; font-size: 11.5px; font-weight: 800; color: var(--gray); margin-bottom: 2px; }
         .bubble a { color: var(--primary); word-break: break-all; }
 
+        #lockBox { margin-top: 18px; border-top: 2px solid #eef1f5; padding-top: 16px; }
+        #lockBox h2 { font-size: 16px; margin-bottom: 6px; }
+        #lockForm { display: flex; gap: 10px; flex-wrap: wrap; }
+        #lockUser, #lockPass {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 14px;
+            border: 2px solid #e3e8ee;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            background: #fbfcfd;
+            color: var(--dark);
+        }
+        #lockUser:focus, #lockPass:focus { outline: none; border-color: var(--primary); background: var(--white); }
+
         #addBox { margin-top: 18px; border-top: 2px solid #eef1f5; padding-top: 16px; }
         #addBox h2 { font-size: 16px; margin-bottom: 6px; }
         .add-hint { font-size: 13px; color: var(--gray); line-height: 1.9; margin-bottom: 10px; }
@@ -237,13 +253,24 @@
             <h1>🔎 متابعة البلاغ</h1>
             <p class="sub">
                 اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR</b>) — الرد بيظهر لوحده أول ما الكود يكتمل، والصفحة بتحدّث نفسها كل شوية.
-                الكود بيتبعت جوه البلاغ نفسه كمان.
+                الكود بيتبعت جوه البلاغ نفسه كمان. ولو صاحب البلاغ حطّ كلمة سر، هتحتاجها عشان تضيف كلام على البلاغ.
             </p>
             <form id="followForm" autocomplete="off" novalidate>
                 <input id="code" type="text" maxlength="14" placeholder="BFO-OMAR" aria-label="كود البلاغ" spellcheck="false">
                 <button type="submit" id="go">اعرض الرد</button>
             </form>
             <div id="result"></div>
+
+            <section id="lockBox" hidden>
+                <h2>🔒 البلاغ ده مقفول بكلمة سر</h2>
+                <p class="add-hint">صاحب البلاغ حطّ كلمة سر وقت الإرسال عشان محدش تاني يضيف كلام على بلاغه. اكتب اسم المستخدم (الاسم اللي كتبته وقت الإرسال) وكلمة السر اللي اخترتها.</p>
+                <form id="lockForm" autocomplete="off" novalidate>
+                    <input id="lockUser" type="text" maxlength="60" placeholder="اسم المستخدم" aria-label="اسم المستخدم" spellcheck="false">
+                    <input id="lockPass" type="password" maxlength="60" placeholder="كلمة السر" aria-label="كلمة السر" autocomplete="current-password">
+                    <button type="submit" id="lockGo">🔓 دخول</button>
+                </form>
+                <p class="add-status" id="lockStatus"></p>
+            </section>
 
             <section id="addBox" hidden>
                 <h2>✍️ ضيف كلام على نفس البلاغ</h2>
@@ -279,6 +306,12 @@
         const addThumbs = document.getElementById('addThumbs');
         const addSend = document.getElementById('addSend');
         const addStatus = document.getElementById('addStatus');
+        const lockBox = document.getElementById('lockBox');
+        const lockForm = document.getElementById('lockForm');
+        const lockUser = document.getElementById('lockUser');
+        const lockPass = document.getElementById('lockPass');
+        const lockGo = document.getElementById('lockGo');
+        const lockStatus = document.getElementById('lockStatus');
 
         const ADD_PREFIX = 'إضافة على البلاغ';
         const MAX_SHOTS = 3;
@@ -381,6 +414,71 @@
             return new Date((t || 0) * 1000).toISOString().slice(0, 10);
         }
 
+        function pbkdf2Hex(pass, salt) {
+            if (!(window.crypto && window.crypto.subtle)) return Promise.reject(new Error('no-subtle'));
+            const s = new Uint8Array(salt.match(/.{2}/g).map(function (h) { return parseInt(h, 16); }));
+            return crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveBits'])
+                .then(function (key) {
+                    return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: s, iterations: 150000, hash: 'SHA-256' }, key, 256);
+                })
+                .then(function (bits) {
+                    return Array.from(new Uint8Array(bits))
+                        .map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+                });
+        }
+
+        function nameOf(msg) {
+            const m = String(msg || '').match(/الاسم\s*[:：]\s*(.+)/);
+            return m ? m[1].trim() : '';
+        }
+
+        function lockOf(msg) {
+            const m = String(msg || '').match(/قفل البلاغ\s*[:：]\s*([0-9a-f]{16})\s*:\s*([0-9a-f]{64})/i);
+            return m ? { salt: m[1].toLowerCase(), hash: m[2].toLowerCase() } : null;
+        }
+
+        function unlockKey(code) { return 'bfo_unlock_' + code; }
+
+        function isUnlocked(code) {
+            try { return localStorage.getItem(unlockKey(code)) === '1'; } catch (e) { return false; }
+        }
+
+        function rememberedLock(msg) {
+            try {
+                const raw = localStorage.getItem('bfo_lock_' + msg);
+                const m = raw && raw.match(/^([0-9a-f]{16}):([0-9a-f]{64})$/i);
+                return m ? { salt: m[1].toLowerCase(), hash: m[2].toLowerCase() } : null;
+            } catch (e) { return null; }
+        }
+
+        function rememberLock(code, lock) {
+            try { localStorage.setItem('bfo_lock_' + code, lock.salt + ':' + lock.hash); } catch (e) {}
+        }
+
+        function sameName(a, b) {
+            const f = function (s) { return String(s || '').toLowerCase().replace(/\s+/g, ''); };
+            return f(a) === f(b);
+        }
+
+        let gate = null;
+
+        function applyGate(code, report) {
+            const fromReport = report ? lockOf(report.message) : null;
+            if (fromReport) rememberLock(code, fromReport);
+            gate = { code: code, lock: fromReport || rememberedLock(code), name: report ? nameOf(report.message) : '' };
+            const open = !gate.lock || isUnlocked(code);
+            lockBox.hidden = open;
+            addBox.hidden = !open;
+            if (open) return;
+            lockStatus.textContent = '';
+            lockStatus.style.color = '#6c757d';
+            if (!lockUser.value && document.activeElement !== lockUser && document.activeElement !== lockPass) {
+                let savedUser = '';
+                try { savedUser = localStorage.getItem('bfo_user') || ''; } catch (e) {}
+                lockUser.value = gate.name || savedUser;
+            }
+        }
+
         function jsonReplies(msg) {
             const t = String(msg.message || '').trim();
             if (t.charAt(0) !== '{') return null;
@@ -474,7 +572,8 @@
                 thread = '<h3 class="chat-h">💬 المحادثة</h3><div class="chat">' + thread + '</div>';
             }
             if (report) {
-                html += '<div class="report"><h3>📄 البلاغ اللي بعته (محفوظ مؤقتاً عندنا)</h3><pre>' + esc(report.message) + '</pre>' + thread + '</div>';
+                const shown = String(report.message).replace(/^.*قفل البلاغ.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
+                html += '<div class="report"><h3>📄 البلاغ اللي بعته (محفوظ مؤقتاً عندنا)</h3><pre>' + esc(shown) + '</pre>' + thread + '</div>';
             } else if (thread) {
                 html += '<div class="report"><h3>📄 إضافاتك على البلاغ</h3>' + thread + '</div>';
             }
@@ -545,7 +644,7 @@
                     }
                 }
                 render(entry, repliesOk || !!entry, report, items);
-                addBox.hidden = false;
+                applyGate(code, report);
             }).catch(function () {
                 if (!quiet) result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';
             }).then(function () {
@@ -690,6 +789,55 @@
             }).then(function () {
                 addSend.disabled = false;
                 addSend.textContent = label;
+            });
+        });
+
+        lockForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!gate || !gate.lock) return;
+            const user = lockUser.value.trim();
+            const pass = lockPass.value;
+            if (!user) {
+                lockStatus.style.color = '#c0392b';
+                lockStatus.textContent = 'اكتب اسم المستخدم اللي كتبته وقت الإرسال.';
+                lockUser.focus();
+                return;
+            }
+            if (!pass) {
+                lockStatus.style.color = '#c0392b';
+                lockStatus.textContent = 'اكتب كلمة السر.';
+                lockPass.focus();
+                return;
+            }
+            if (gate.name && !sameName(user, gate.name)) {
+                lockStatus.style.color = '#c0392b';
+                lockStatus.textContent = 'اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس الاسم اللي كتبته وقت الإرسال.';
+                lockUser.focus();
+                return;
+            }
+            const label = lockGo.textContent;
+            lockGo.disabled = true;
+            lockGo.textContent = '⏳ بنتأكد…';
+            lockStatus.style.color = '#6c757d';
+            lockStatus.textContent = '';
+            pbkdf2Hex(pass, gate.lock.salt).then(function (hash) {
+                if (hash !== gate.lock.hash) throw new Error('wrong');
+                try {
+                    localStorage.setItem(unlockKey(gate.code), '1');
+                    localStorage.setItem('bfo_user', user);
+                } catch (err) {}
+                lockPass.value = '';
+                lockBox.hidden = true;
+                addBox.hidden = false;
+                addText.focus();
+            }).catch(function (err) {
+                lockStatus.style.color = '#c0392b';
+                lockStatus.textContent = (err && err.message === 'no-subtle')
+                    ? '⚠️ المتصفح ده ما بيدعمش تشفير كلمة السر — استخدم Chrome أو Edge حديث.'
+                    : '❌ كلمة السر غلط — جرّب تاني.';
+            }).then(function () {
+                lockGo.disabled = false;
+                lockGo.textContent = label;
             });
         });
 
