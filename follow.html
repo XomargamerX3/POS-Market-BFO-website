@@ -286,6 +286,8 @@
         const REPLIES_TTL = 5 * 60 * 1000;
         let shots = [];
         let lastCode = '';
+        let checking = false;
+        let lastCheckAt = 0;
         let repliesCache = null;
         let repliesAt = 0;
 
@@ -490,6 +492,9 @@
                 }
                 return;
             }
+            if (quiet && checking) return;
+            checking = true;
+            lastCheckAt = Date.now();
             lastCode = code;
             if (!quiet) input.value = code;
 
@@ -544,6 +549,7 @@
             }).catch(function () {
                 if (!quiet) result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';
             }).then(function () {
+                checking = false;
                 if (!quiet) {
                     btn.disabled = false;
                     btn.textContent = label;
@@ -707,7 +713,9 @@
         }, REFRESH_MS);
 
         document.addEventListener('visibilitychange', function () {
-            if (!document.hidden && lastCode) check(true);
+            if (document.hidden || !lastCode) return;
+            if (Date.now() - lastCheckAt < 5000) return;
+            check(true);
         });
 
         (function init() {
