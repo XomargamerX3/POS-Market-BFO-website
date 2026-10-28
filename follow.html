@@ -156,10 +156,22 @@
 
         .empty { color: #c0392b; font-weight: 700; line-height: 1.9; }
 
-        .thread { margin-top: 12px; border-top: 1px dashed #d7dde5; padding-top: 10px; }
-        .thread .msg { font-size: 13.5px; line-height: 1.9; color: #343a40; margin-bottom: 10px; }
-        .thread .who { display: block; font-size: 12px; font-weight: 800; color: var(--gray); margin-bottom: 2px; }
-        .thread .msg a { color: var(--primary); word-break: break-all; }
+        .chat-h { margin-top: 14px; padding-top: 10px; border-top: 1px dashed #d7dde5; }
+        .chat { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .bubble {
+            max-width: 86%;
+            padding: 9px 12px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.9;
+            color: #343a40;
+            border: 1px solid #e3e8ee;
+            background: #f7f9fc;
+        }
+        .bubble.me { align-self: flex-start; background: #eef2ff; border-color: #dbe2ff; }
+        .bubble.dev { align-self: flex-end; background: #f2fbf6; border-color: #cdeedb; }
+        .bubble .who { display: block; font-size: 11.5px; font-weight: 800; color: var(--gray); margin-bottom: 2px; }
+        .bubble a { color: var(--primary); word-break: break-all; }
 
         #addBox { margin-top: 18px; border-top: 2px solid #eef1f5; padding-top: 16px; }
         #addBox h2 { font-size: 16px; margin-bottom: 6px; }
@@ -372,52 +384,47 @@
             return Object.keys(out).length ? out : null;
         }
 
-        function findInboxReply(rows, code) {
-            let found = null;
+        function parseAddition(j) {
+            const body = j.message.slice(ADD_PREFIX.length)
+                .replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
+                .replace(/^[\s:\-–—]+/, '');
+            const cut = body.indexOf('📷');
+            const text = (cut >= 0 ? body.slice(0, cut) : body).replace(/—[^\n]*$/, '').trim();
+            const photos = cut < 0 ? [] : body.slice(cut).split('\n')
+                .map(function (l) { return l.trim(); })
+                .filter(function (l) { return /^https?:\/\//.test(l); });
+            return { text: text, photos: photos };
+        }
+
+        function buildTimeline(rows, code) {
+            const items = [];
             rows.forEach(function (j) {
+                const t = j.time || 0;
                 if (j.message.indexOf('بلاغ جديد من موقع') === 0) return;
                 if (j.message.indexOf('You received a file') === 0) return;
-                if (j.message.indexOf(ADD_PREFIX) === 0) return;
+                if (j.message.indexOf(ADD_PREFIX) === 0) {
+                    if (!hasCode(j.message, code)) return;
+                    const a = parseAddition(j);
+                    items.push({ side: 'me', text: a.text, photos: a.photos, status: '', time: t, date: dateOf(t) });
+                    return;
+                }
                 const js = jsonReplies(j);
                 if (js) {
-                    if (js[code]) found = js[code];
+                    if (!js[code]) return;
+                    items.push({ side: 'dev', text: js[code].reply, photos: [], status: js[code].status, time: t, date: js[code].date });
                     return;
                 }
                 if (!hasCode(j.message, code)) return;
                 const stripped = j.message.replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
                     .replace(/^[\s:\-–—]+/, '').trim();
                 const st = statusOf(stripped);
-                found = {
-                    status: st.status,
-                    reply: st.body,
-                    date: dateOf(j.time)
-                };
+                items.push({ side: 'dev', text: st.body, photos: [], status: st.status, time: t, date: dateOf(t) });
             });
-            return found;
+            items.sort(function (a, b) { return a.time - b.time; });
+            return items;
         }
 
-        function findAdditions(rows, code) {
-            const out = [];
-            rows.forEach(function (j) {
-                if (j.message.indexOf(ADD_PREFIX) !== 0) return;
-                if (!hasCode(j.message, code)) return;
-                let body = j.message.slice(ADD_PREFIX.length)
-                    .replace(/BFO[\s\-_]*[A-Z0-9]{4}/i, ' ')
-                    .replace(/^[\s:\-–—]+/, '');
-                const cut = body.indexOf('📷');
-                let text = (cut >= 0 ? body.slice(0, cut) : body).replace(/—[^\n]*$/, '').trim();
-                let photos = [];
-                if (cut >= 0) {
-                    photos = body.slice(cut).split('\n')
-                        .map(function (l) { return l.trim(); })
-                        .filter(function (l) { return /^https?:\/\//.test(l); });
-                }
-                out.push({ text: text, photos: photos, date: dateOf(j.time) });
-            });
-            return out;
-        }
-
-        function render(entry, repliesOk, report, additions) {
+        function render(entry, repliesOk, report, items) {
             let html = '';
             if (!repliesOk) {
                 html += '<div class="status"><span class="badge">⚠️ ما قدرناش نقرا الردود دلوقتي</span>' +
@@ -434,13 +441,20 @@
                         '<div class="reply">لو الكود صح ولسه مفيش رد، ارجع تاني بعد شوية — الردود بتتضاف بعد ما المشكلة تتحل.</div></div>';
             }
             let thread = '';
-            (additions || []).forEach(function (a) {
-                thread += '<div class="msg"><span class="who">📎 إضافة على البلاغ — ' + esc(a.date) + '</span>' +
-                          (a.text ? esc(a.text) : '') + a.photos.map(function (p) {
+            (items || []).forEach(function (m) {
+                const icon = m.side !== 'dev' ? '📎 أنت'
+                    : (m.status === 'fixed' ? '✅ المطور' : m.status === 'working' ? '🛠️ المطور' : '💬 المطور');
+                thread += '<div class="bubble ' + (m.side === 'dev' ? 'dev' : 'me') + '">' +
+                          '<span class="who">' + icon + ' · ' + esc(m.date) + '</span>' +
+                          (m.text ? '<div>' + esc(m.text) + '</div>' : '') +
+                          (m.photos || []).map(function (p) {
                               return '<div><a href="' + esc(p) + '" target="_blank" rel="noopener">' + esc(p) + '</a></div>';
-                          }).join('') + '</div>';
+                          }).join('') +
+                          '</div>';
             });
-            if (thread) thread = '<div class="thread">' + thread + '</div>';
+            if (thread) {
+                thread = '<h3 class="chat-h">💬 المحادثة</h3><div class="chat">' + thread + '</div>';
+            }
             if (report) {
                 html += '<div class="report"><h3>📄 البلاغ اللي بعته (محفوظ مؤقتاً عندنا)</h3><pre>' + esc(report.message) + '</pre>' + thread + '</div>';
             } else if (thread) {
@@ -478,11 +492,16 @@
             }).then(function (rows) {
                 let entry = null;
                 let report = null;
-                let additions = [];
+                let items = [];
                 if (rows) {
                     report = findReport(rows, code);
-                    entry = findInboxReply(rows, code);
-                    additions = findAdditions(rows, code);
+                    items = buildTimeline(rows, code);
+                }
+                for (let i = items.length - 1; i >= 0; i--) {
+                    if (items[i].side === 'dev') {
+                        entry = { status: items[i].status, reply: items[i].text, date: items[i].date };
+                        break;
+                    }
                 }
                 if (!entry && replies) {
                     if (replies[code]) entry = replies[code];
@@ -492,8 +511,14 @@
                             if (keys[i].toUpperCase() === code) { entry = replies[keys[i]]; break; }
                         }
                     }
+                    if (entry) {
+                        items.push({
+                            side: 'dev', text: entry.reply, photos: [],
+                            status: entry.status, time: Number.MAX_SAFE_INTEGER, date: entry.date
+                        });
+                    }
                 }
-                render(entry, repliesOk || !!entry, report, additions);
+                render(entry, repliesOk || !!entry, report, items);
                 addBox.hidden = false;
             }).catch(function () {
                 result.innerHTML = '<p class="empty">⚠️ حصلت مشكلة وإحنا بنفحص الكود — جرّب تاني.</p>';
