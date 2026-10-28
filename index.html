@@ -1118,11 +1118,16 @@
             <div class="features-grid">
                 <div class="support-card form-card">
                     <h3>📝 ابعت بلاغك من هنا — بدون حساب</h3>
-                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وانت اللي تختار كود المتابعة وكلمة سرك، وبيهم بس تقدر تضيف على بلاغك وتشوف رد المطور.</p>
+                    <p>اكتب اسمك ووصف الخطأ وتقدر تضيف صور للمشكلة. ما فيش تسجيل ولا حساب ولا رقم هاتف مطلوب — وانت اللي تختار اسم المستخدم وكلمة سرك وكود المتابعة، وبيهم بس تقدر تضيف على بلاغك وتشوف رد المطور.</p>
                     <form id="bugForm" autocomplete="off" novalidate>
                         <div class="form-row">
                             <label for="bugName">اسمك *</label>
                             <input id="bugName" type="text" maxlength="60" placeholder="مثال: عمر">
+                        </div>
+                        <div class="form-row">
+                            <label for="bugUser">اسم المستخدم *</label>
+                            <input id="bugUser" type="text" maxlength="30" placeholder="مثال: omar أو عمر بن مامو" spellcheck="false" autocomplete="username">
+                            <span class="form-hint">ده اللي هتدخل بيه على بلاغك مع كلمة السر — اكتبه زي ما تحب (عربي أو إنجليزي).</span>
                         </div>
                         <div class="form-row">
                             <label for="bugCodeInput">كود المتابعة</label>
@@ -1139,7 +1144,7 @@
                         <div class="form-row">
                             <label for="bugPass2">تأكيد كلمة السر *</label>
                             <input id="bugPass2" type="password" maxlength="60" placeholder="اكتبها تاني" autocomplete="new-password">
-                            <span class="form-hint">كلمة السر دي تمنع أي حد تاني يضيف كلام على بلاغك — انت بس اللي تعرفها. واسمك اللي فوق هو اسم المستخدم بتاعك.</span>
+                            <span class="form-hint">كلمة السر دي تمنع أي حد تاني يضيف كلام على بلاغك — انت بس اللي تعرفها. وانت اللي بتختار اسم المستخدم اللي فوق.</span>
                         </div>
                         <div class="form-row">
                             <label for="bugText">وصف الخطأ *</label>
@@ -1167,7 +1172,7 @@
                                 <button type="button" class="copy-btn" id="bugCopy">📋 نسخ</button>
                             </div>
                             <p>احفظ الكود ده — تكتبه في <a id="bugFollow" href="follow.html">صفحة متابعة البلاغ</a> وتشوف رد المطور على مشكلتك.</p>
-                            <p>واعمل حساب صغير: اسم المستخدم هو <b>اسمك اللي فوق</b>، وكلمة السر هي اللي اخترتها — بيهم بس تقدر تضيف كلام على البلاغ.</p>
+                            <p>واعمل حساب صغير: اسم المستخدم هو اللي كتبته فوق، وكلمة السر هي اللي اخترتها — بيهم بس تقدر تضيف كلام على البلاغ.</p>
                         </div>
                     </form>
                     <p class="follow-line">عندك كود بلاغ؟ <a href="follow.html">تابع الرد من هنا ←</a></p>
@@ -1345,6 +1350,7 @@
             const form = document.getElementById('bugForm');
             if (!form) return;
             const nameEl = document.getElementById('bugName');
+            const userEl = document.getElementById('bugUser');
             const codeInputEl = document.getElementById('bugCodeInput');
             const passEl = document.getElementById('bugPass');
             const pass2El = document.getElementById('bugPass2');
@@ -1552,10 +1558,11 @@
                 });
             }
 
-            function sendReport(name, problem, contact, links, shotsFailed, code, lock) {
+            function sendReport(name, user, problem, contact, links, shotsFailed, code, lock) {
                 let body = 'بلاغ جديد من موقع POS Market BFO\n\n';
                 body += 'كود البلاغ: ' + code + '\n';
                 body += 'الاسم: ' + name + '\n';
+                body += 'اسم المستخدم: ' + user + '\n';
                 if (lock) body += '🔒 قفل البلاغ: ' + lock + '\n';
                 if (contact) body += 'للتواصل: ' + contact + '\n';
                 body += '\n' + problem + '\n';
@@ -1584,6 +1591,7 @@
                 }
 
                 const name = (nameEl.value || '').trim();
+                const user = (userEl.value || '').trim();
                 const typed = typedCode(codeInputEl ? codeInputEl.value : '');
                 const pass = (passEl.value || '');
                 const pass2 = (pass2El.value || '');
@@ -1593,6 +1601,11 @@
                 if (!name) {
                     say('اكتب اسمك الأول.', false);
                     nameEl.focus();
+                    return;
+                }
+                if (user.length < 3) {
+                    say('اكتب اسم مستخدم 3 حروف على الأقل — ده اللي هتدخل بيه على بلاغك.', false);
+                    userEl.focus();
                     return;
                 }
                 if (typed && typed.length < 3) {
@@ -1651,7 +1664,7 @@
                 chain
                     .then(function () {
                         btn.textContent = '⏳ جاري الإرسال…';
-                        return sendReport(name, problem, contact, uploaded, shotsFailed, code, lock);
+                        return sendReport(name, user, problem, contact, uploaded, shotsFailed, code, lock);
                     })
                     .then(function (r) {
                         if (!r.ok) throw r.status;
@@ -1660,7 +1673,7 @@
                         showDone(code);
                         try {
                             localStorage.setItem('bfo_last_code', code);
-                            localStorage.setItem('bfo_user', name);
+                            localStorage.setItem('bfo_user', user);
                             localStorage.setItem('bfo_lock_' + code, lock);
                         } catch (err) {}
                         if (shotsFailed) say('⚠️ وصل البلاغ، لكن الصور ما اترفعتش — جرّب صورة أصغر.', true);

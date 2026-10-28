@@ -253,7 +253,7 @@
             <h1>🔎 متابعة البلاغ</h1>
             <p class="sub">
                 اكتب كود البلاغ اللي خدته بعد الإرسال (زي <b>BFO-OMAR</b>) — الرد بيظهر لوحده أول ما الكود يكتمل، والصفحة بتحدّث نفسها كل شوية.
-                الكود بيتبعت جوه البلاغ نفسه كمان. ولو صاحب البلاغ حطّ كلمة سر، هتحتاجها عشان تضيف كلام على البلاغ.
+                الكود بيتبعت جوه البلاغ نفسه كمان. ولو صاحب البلاغ حطّ اسم مستخدم وكلمة سر، هتحتاجهم عشان تضيف كلام على البلاغ.
             </p>
             <form id="followForm" autocomplete="off" novalidate>
                 <input id="code" type="text" maxlength="14" placeholder="BFO-OMAR" aria-label="كود البلاغ" spellcheck="false">
@@ -263,7 +263,7 @@
 
             <section id="lockBox" hidden>
                 <h2>🔒 البلاغ ده مقفول بكلمة سر</h2>
-                <p class="add-hint">صاحب البلاغ حطّ كلمة سر وقت الإرسال عشان محدش تاني يضيف كلام على بلاغه. اكتب اسم المستخدم (الاسم اللي كتبته وقت الإرسال) وكلمة السر اللي اخترتها.</p>
+                <p class="add-hint">صاحب البلاغ حطّ اسم مستخدم وكلمة سر وقت الإرسال عشان محدش تاني يضيف كلام على بلاغه. اكتب نفس اسم المستخدم اللي اخترته وقت الإرسال، وكلمة السر اللي اخترتها.</p>
                 <form id="lockForm" autocomplete="off" novalidate>
                     <input id="lockUser" type="text" maxlength="60" placeholder="اسم المستخدم" aria-label="اسم المستخدم" spellcheck="false">
                     <input id="lockPass" type="password" maxlength="60" placeholder="كلمة السر" aria-label="كلمة السر" autocomplete="current-password">
@@ -428,8 +428,11 @@
         }
 
         function nameOf(msg) {
-            const m = String(msg || '').match(/الاسم\s*[:：]\s*(.+)/);
-            return m ? m[1].trim() : '';
+            const s = String(msg || '');
+            const u = s.match(/اسم المستخدم\s*[:：]\s*(.+)/);
+            if (u) return u[1].trim();
+            const n = s.match(/الاسم\s*[:：]\s*(.+)/);
+            return n ? n[1].trim() : '';
         }
 
         function lockOf(msg) {
@@ -799,7 +802,7 @@
             const pass = lockPass.value;
             if (!user) {
                 lockStatus.style.color = '#c0392b';
-                lockStatus.textContent = 'اكتب اسم المستخدم اللي كتبته وقت الإرسال.';
+                lockStatus.textContent = 'اكتب اسم المستخدم اللي اخترته وقت الإرسال.';
                 lockUser.focus();
                 return;
             }
@@ -811,7 +814,7 @@
             }
             if (gate.name && !sameName(user, gate.name)) {
                 lockStatus.style.color = '#c0392b';
-                lockStatus.textContent = 'اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس الاسم اللي كتبته وقت الإرسال.';
+                lockStatus.textContent = 'اسم المستخدم مش مطابق لصاحب البلاغ — اكتب نفس اسم المستخدم اللي اخترته وقت الإرسال.';
                 lockUser.focus();
                 return;
             }
