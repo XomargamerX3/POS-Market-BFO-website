@@ -433,6 +433,16 @@
         }
 
         /* ====================== المتطلبات ====================== */
+        .req-card code, .features-grid code {
+            direction: ltr;
+            unicode-bidi: embed;
+            background: rgba(0, 0, 0, .06);
+            padding: 1px 6px;
+            border-radius: 5px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
         .req-card {
             background: var(--white);
             border-radius: var(--radius);
@@ -824,6 +834,7 @@
                 <li><a href="#home">الرئيسية</a></li>
                 <li><a href="#features">المميزات</a></li>
                 <li><a href="#requirements">المتطلبات</a></li>
+                <li><a href="#license">🔑 التفعيل</a></li>
                 <li><a href="guide.html">📖 دليل الاستخدام</a></li>
                 <li><a href="#support">🐞 الإبلاغ عن خطأ</a></li>
                 <li><a href="login.html">🔐 دخول</a></li>
@@ -1112,6 +1123,84 @@
         </div>
     </section>
 
+    <!-- ==================== الترخيص والتفعيل ==================== -->
+    <section class="features" id="license" style="background:var(--bg);">
+        <div class="features-container">
+            <h2 class="section-title">🔑 الترخيص والتفعيل</h2>
+            <p class="section-subtitle">ترخيص مربوط بجهازك — والتفعيل يتم بدون إنترنت في أي حاسوب</p>
+
+            <div class="features-grid">
+                <div class="req-card">
+                    <h3><span class="ico">1️⃣</span> افتح البرنامج</h3>
+                    <ul>
+                        <li>عند أول تشغيل من غير ترخيص ساري تفتح <b>نافذة التفعيل</b> لوحدها</li>
+                        <li>فيها <b>كود الجهاز</b> (مثال: <code>AB12-CD34-EF56-7890</code>) وزر <b>نسخ</b></li>
+                        <li>كود الجهاز ثابت وما بيتغيرش بإعادة تثبيت البرنامج</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">2️⃣</span> ابعت الكود للمطوّر</h3>
+                    <ul>
+                        <li>من <b>الواتساب أو الإيميل</b> في قسم الدعم أسفل الصفحة</li>
+                        <li>اكتب كود الجهاز ونوع الترخيص اللي اتفقتم عليه</li>
+                        <li>تستلم <b>نص الترخيص</b> أو ملف <code>license.xml</code></li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">3️⃣</span> الصق وفعّل</h3>
+                    <ul>
+                        <li>الصق نص الترخيص في الخانة، أو اضغط <b>اختيار ملف</b></li>
+                        <li>اضغط <b>تفعيل</b> — البرنامج يتأكد من التوقيع فوراً</li>
+                        <li>لو نجح يشتغل مباشرة من غير ما تقفل النافذة</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="guide-banner" style="margin-top:26px;">
+                <div>
+                    <h3>🔌 التفعيل مش محتاج إنترنت</h3>
+                    <p>
+                        الترخيص ملف موقّع رياضياً ومربوط بكود جهازك. البرنامج فيه مفتاح التحقق فقط،
+                        فلو الحاسوب مقفول عنه الشبكة تماماً التفعيل بيشتغل عادي.
+                        تقدر تشوف حالة الترخيص وكود الجهاز في <b>الإعدادات ← العام</b>.
+                    </p>
+                </div>
+                <a href="#support" class="btn-onblue">اطلب ترخيص ←</a>
+            </div>
+
+            <div class="features-grid" style="margin-top:26px;">
+                <div class="req-card">
+                    <h3><span class="ico">🧪</span> نسخة التجربة</h3>
+                    <ul>
+                        <li><b>30 يوم</b> بكل المميزات بدون أي نقص</li>
+                        <li>لو الترخيص انتهى، البيانات دي بتفضل زي ما هي</li>
+                        <li>تقدر تفعّل ترخيص دائم في أي وقت من نفس النافذة</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">♾️</span> ترخيص دائم</h3>
+                    <ul>
+                        <li>دفعة واحدة على <b>جهاز واحد</b> ومفيش اشتراك سنة</li>
+                        <li>يشتغل بدون إنترنت للأبد ومن غير تحديث إجباري</li>
+                        <li>التنزيلات والتحديثات بنفس الترخيص</li>
+                    </ul>
+                </div>
+
+                <div class="req-card">
+                    <h3><span class="ico">🔁</span> نقل الترخيص</h3>
+                    <ul>
+                        <li>غيّرت الحاسوب؟ ابعت كود الجهاز الجديد</li>
+                        <li>يُصدَر ترخيص للجهاز الجديد ويوقف القديم</li>
+                        <li><b>ترخيص واحد = جهاز واحد</b> — عشان السعر يفضل للمشتري الحقيقي</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ==================== الدعم والإبلاغ عن خطأ ==================== -->
     <section class="features" id="support">
         <div class="features-container">
@@ -1246,6 +1335,7 @@
                 <a href="#home">الرئيسية</a><br>
                 <a href="#features">المميزات</a><br>
                 <a href="#requirements">متطلبات التشغيل</a><br>
+                <a href="#license">🔑 الترخيص والتفعيل</a><br>
                 <a href="guide.html">📖 دليل الاستخدام</a><br>
                 <a href="#download">الحصول على النسخة</a>
             </div>
